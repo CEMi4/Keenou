@@ -434,7 +434,8 @@ namespace Keenou
 
             // Set necessary registry values //
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encContainerLoc", t_volumeLoc.Text);
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "firstBoot", true);
+            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "firstBoot", true, RegistryValueKind.DWord);
+            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "hash", hashChosen);
             // * //
 
 
