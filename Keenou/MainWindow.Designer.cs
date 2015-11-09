@@ -29,10 +29,21 @@
         private void InitializeComponent()
         {
             this.g_homeDirectory = new System.Windows.Forms.GroupBox();
+            this.b_setVolumeSize = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.l_volumeSize = new System.Windows.Forms.Label();
+            this.t_volumeSize = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.b_encrypt = new System.Windows.Forms.Button();
+            this.g_advanced = new System.Windows.Forms.GroupBox();
+            this.l_volumeLocWarn = new System.Windows.Forms.Label();
+            this.b_volumeLoc = new System.Windows.Forms.Button();
+            this.l_volumeLoc = new System.Windows.Forms.Label();
+            this.t_volumeLoc = new System.Windows.Forms.TextBox();
             this.l_hash = new System.Windows.Forms.Label();
-            this.c_hash = new System.Windows.Forms.ComboBox();
-            this.l_cipher = new System.Windows.Forms.Label();
             this.c_cipher = new System.Windows.Forms.ComboBox();
+            this.l_cipher = new System.Windows.Forms.Label();
+            this.c_hash = new System.Windows.Forms.ComboBox();
             this.l_sid = new System.Windows.Forms.Label();
             this.l_userName = new System.Windows.Forms.Label();
             this.t_sid = new System.Windows.Forms.TextBox();
@@ -42,21 +53,13 @@
             this.l_password = new System.Windows.Forms.Label();
             this.t_password = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.g_advanced = new System.Windows.Forms.GroupBox();
-            this.b_encrypt = new System.Windows.Forms.Button();
-            this.t_volumeLoc = new System.Windows.Forms.TextBox();
-            this.l_volumeLoc = new System.Windows.Forms.Label();
-            this.b_volumeLoc = new System.Windows.Forms.Button();
-            this.l_volumeLocWarn = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.t_volumeSize = new System.Windows.Forms.TextBox();
-            this.l_volumeSize = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.b_setVolumeSize = new System.Windows.Forms.Button();
             this.l_statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.s_progress = new System.Windows.Forms.ToolStripProgressBar();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.l_homeAlreadyEncrypted = new System.Windows.Forms.Label();
             this.g_homeDirectory.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
             this.g_advanced.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // g_homeDirectory
@@ -76,12 +79,126 @@
             this.g_homeDirectory.Controls.Add(this.t_passwordConf);
             this.g_homeDirectory.Controls.Add(this.l_password);
             this.g_homeDirectory.Controls.Add(this.t_password);
-            this.g_homeDirectory.Location = new System.Drawing.Point(22, 27);
+            this.g_homeDirectory.Location = new System.Drawing.Point(23, 25);
             this.g_homeDirectory.Name = "g_homeDirectory";
             this.g_homeDirectory.Size = new System.Drawing.Size(497, 353);
             this.g_homeDirectory.TabIndex = 0;
             this.g_homeDirectory.TabStop = false;
             this.g_homeDirectory.Text = "Home Directory";
+            // 
+            // b_setVolumeSize
+            // 
+            this.b_setVolumeSize.Location = new System.Drawing.Point(403, 172);
+            this.b_setVolumeSize.Name = "b_setVolumeSize";
+            this.b_setVolumeSize.Size = new System.Drawing.Size(75, 23);
+            this.b_setVolumeSize.TabIndex = 14;
+            this.b_setVolumeSize.Text = "Estimate";
+            this.b_setVolumeSize.UseVisualStyleBackColor = true;
+            this.b_setVolumeSize.Click += new System.EventHandler(this.b_setVolumeSize_Click);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Cursor = System.Windows.Forms.Cursors.Help;
+            this.label2.ForeColor = System.Drawing.Color.Red;
+            this.label2.Location = new System.Drawing.Point(40, 149);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(438, 13);
+            this.label2.TabIndex = 13;
+            this.label2.Text = "Warning: Ensure the volume size is big enough to fit your home folder now and in " +
+    "the future!";
+            // 
+            // l_volumeSize
+            // 
+            this.l_volumeSize.AutoSize = true;
+            this.l_volumeSize.Location = new System.Drawing.Point(197, 177);
+            this.l_volumeSize.Name = "l_volumeSize";
+            this.l_volumeSize.Size = new System.Drawing.Size(93, 13);
+            this.l_volumeSize.TabIndex = 12;
+            this.l_volumeSize.Text = "Volume Size (MB):";
+            // 
+            // t_volumeSize
+            // 
+            this.t_volumeSize.Location = new System.Drawing.Point(295, 174);
+            this.t_volumeSize.Name = "t_volumeSize";
+            this.t_volumeSize.Size = new System.Drawing.Size(100, 20);
+            this.t_volumeSize.TabIndex = 11;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Cursor = System.Windows.Forms.Cursors.Help;
+            this.label1.ForeColor = System.Drawing.Color.Red;
+            this.label1.Location = new System.Drawing.Point(62, 67);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(399, 13);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "Warning: This password MUST be the same as your local Windows user password!";
+            // 
+            // b_encrypt
+            // 
+            this.b_encrypt.Location = new System.Drawing.Point(416, 324);
+            this.b_encrypt.Name = "b_encrypt";
+            this.b_encrypt.Size = new System.Drawing.Size(75, 23);
+            this.b_encrypt.TabIndex = 10;
+            this.b_encrypt.Text = "Encrypt";
+            this.b_encrypt.UseVisualStyleBackColor = true;
+            this.b_encrypt.Click += new System.EventHandler(this.b_encrypt_Click);
+            // 
+            // g_advanced
+            // 
+            this.g_advanced.Controls.Add(this.l_volumeLocWarn);
+            this.g_advanced.Controls.Add(this.b_volumeLoc);
+            this.g_advanced.Controls.Add(this.l_volumeLoc);
+            this.g_advanced.Controls.Add(this.t_volumeLoc);
+            this.g_advanced.Controls.Add(this.l_hash);
+            this.g_advanced.Controls.Add(this.c_cipher);
+            this.g_advanced.Controls.Add(this.l_cipher);
+            this.g_advanced.Controls.Add(this.c_hash);
+            this.g_advanced.Location = new System.Drawing.Point(13, 200);
+            this.g_advanced.Name = "g_advanced";
+            this.g_advanced.Size = new System.Drawing.Size(465, 109);
+            this.g_advanced.TabIndex = 9;
+            this.g_advanced.TabStop = false;
+            this.g_advanced.Text = "Advanced Options";
+            // 
+            // l_volumeLocWarn
+            // 
+            this.l_volumeLocWarn.AutoSize = true;
+            this.l_volumeLocWarn.Cursor = System.Windows.Forms.Cursors.Help;
+            this.l_volumeLocWarn.ForeColor = System.Drawing.Color.Red;
+            this.l_volumeLocWarn.Location = new System.Drawing.Point(6, 22);
+            this.l_volumeLocWarn.Name = "l_volumeLocWarn";
+            this.l_volumeLocWarn.Size = new System.Drawing.Size(450, 13);
+            this.l_volumeLocWarn.TabIndex = 7;
+            this.l_volumeLocWarn.Text = "Warning: The volume location cannot be located in an encrypted partition or your " +
+    "home folder!";
+            // 
+            // b_volumeLoc
+            // 
+            this.b_volumeLoc.Location = new System.Drawing.Point(373, 43);
+            this.b_volumeLoc.Name = "b_volumeLoc";
+            this.b_volumeLoc.Size = new System.Drawing.Size(75, 23);
+            this.b_volumeLoc.TabIndex = 6;
+            this.b_volumeLoc.Text = "Choose";
+            this.b_volumeLoc.UseVisualStyleBackColor = true;
+            this.b_volumeLoc.Click += new System.EventHandler(this.b_volumeLoc_Click);
+            // 
+            // l_volumeLoc
+            // 
+            this.l_volumeLoc.AutoSize = true;
+            this.l_volumeLoc.Location = new System.Drawing.Point(8, 48);
+            this.l_volumeLoc.Name = "l_volumeLoc";
+            this.l_volumeLoc.Size = new System.Drawing.Size(85, 13);
+            this.l_volumeLoc.TabIndex = 5;
+            this.l_volumeLoc.Text = "Volume location:";
+            // 
+            // t_volumeLoc
+            // 
+            this.t_volumeLoc.Location = new System.Drawing.Point(99, 45);
+            this.t_volumeLoc.Name = "t_volumeLoc";
+            this.t_volumeLoc.Size = new System.Drawing.Size(268, 20);
+            this.t_volumeLoc.TabIndex = 4;
             // 
             // l_hash
             // 
@@ -91,28 +208,6 @@
             this.l_hash.Size = new System.Drawing.Size(35, 13);
             this.l_hash.TabIndex = 3;
             this.l_hash.Text = "Hash:";
-            // 
-            // c_hash
-            // 
-            this.c_hash.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.c_hash.Items.AddRange(new object[] {
-            "sha256",
-            "sha512",
-            "whirlpool",
-            "ripemd160"});
-            this.c_hash.Location = new System.Drawing.Point(99, 75);
-            this.c_hash.Name = "c_hash";
-            this.c_hash.Size = new System.Drawing.Size(121, 21);
-            this.c_hash.TabIndex = 2;
-            // 
-            // l_cipher
-            // 
-            this.l_cipher.AutoSize = true;
-            this.l_cipher.Location = new System.Drawing.Point(247, 78);
-            this.l_cipher.Name = "l_cipher";
-            this.l_cipher.Size = new System.Drawing.Size(40, 13);
-            this.l_cipher.TabIndex = 1;
-            this.l_cipher.Text = "Cipher:";
             // 
             // c_cipher
             // 
@@ -130,6 +225,28 @@
             this.c_cipher.Name = "c_cipher";
             this.c_cipher.Size = new System.Drawing.Size(121, 21);
             this.c_cipher.TabIndex = 0;
+            // 
+            // l_cipher
+            // 
+            this.l_cipher.AutoSize = true;
+            this.l_cipher.Location = new System.Drawing.Point(247, 78);
+            this.l_cipher.Name = "l_cipher";
+            this.l_cipher.Size = new System.Drawing.Size(40, 13);
+            this.l_cipher.TabIndex = 1;
+            this.l_cipher.Text = "Cipher:";
+            // 
+            // c_hash
+            // 
+            this.c_hash.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.c_hash.Items.AddRange(new object[] {
+            "sha256",
+            "sha512",
+            "whirlpool",
+            "ripemd160"});
+            this.c_hash.Location = new System.Drawing.Point(99, 75);
+            this.c_hash.Name = "c_hash";
+            this.c_hash.Size = new System.Drawing.Size(121, 21);
+            this.c_hash.TabIndex = 2;
             // 
             // l_sid
             // 
@@ -202,139 +319,53 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.l_statusLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 393);
+            this.l_statusLabel,
+            this.toolStripStatusLabel1,
+            this.s_progress});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 402);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(542, 22);
             this.statusStrip1.SizingGrip = false;
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // g_advanced
-            // 
-            this.g_advanced.Controls.Add(this.l_volumeLocWarn);
-            this.g_advanced.Controls.Add(this.b_volumeLoc);
-            this.g_advanced.Controls.Add(this.l_volumeLoc);
-            this.g_advanced.Controls.Add(this.t_volumeLoc);
-            this.g_advanced.Controls.Add(this.l_hash);
-            this.g_advanced.Controls.Add(this.c_cipher);
-            this.g_advanced.Controls.Add(this.l_cipher);
-            this.g_advanced.Controls.Add(this.c_hash);
-            this.g_advanced.Location = new System.Drawing.Point(13, 200);
-            this.g_advanced.Name = "g_advanced";
-            this.g_advanced.Size = new System.Drawing.Size(465, 109);
-            this.g_advanced.TabIndex = 9;
-            this.g_advanced.TabStop = false;
-            this.g_advanced.Text = "Advanced Options";
-            // 
-            // b_encrypt
-            // 
-            this.b_encrypt.Location = new System.Drawing.Point(416, 324);
-            this.b_encrypt.Name = "b_encrypt";
-            this.b_encrypt.Size = new System.Drawing.Size(75, 23);
-            this.b_encrypt.TabIndex = 10;
-            this.b_encrypt.Text = "Encrypt";
-            this.b_encrypt.UseVisualStyleBackColor = true;
-            this.b_encrypt.Click += new System.EventHandler(this.b_encrypt_Click);
-            // 
-            // t_volumeLoc
-            // 
-            this.t_volumeLoc.Location = new System.Drawing.Point(99, 45);
-            this.t_volumeLoc.Name = "t_volumeLoc";
-            this.t_volumeLoc.Size = new System.Drawing.Size(268, 20);
-            this.t_volumeLoc.TabIndex = 4;
-            // 
-            // l_volumeLoc
-            // 
-            this.l_volumeLoc.AutoSize = true;
-            this.l_volumeLoc.Location = new System.Drawing.Point(8, 48);
-            this.l_volumeLoc.Name = "l_volumeLoc";
-            this.l_volumeLoc.Size = new System.Drawing.Size(85, 13);
-            this.l_volumeLoc.TabIndex = 5;
-            this.l_volumeLoc.Text = "Volume location:";
-            // 
-            // b_volumeLoc
-            // 
-            this.b_volumeLoc.Location = new System.Drawing.Point(373, 43);
-            this.b_volumeLoc.Name = "b_volumeLoc";
-            this.b_volumeLoc.Size = new System.Drawing.Size(75, 23);
-            this.b_volumeLoc.TabIndex = 6;
-            this.b_volumeLoc.Text = "Choose";
-            this.b_volumeLoc.UseVisualStyleBackColor = true;
-            this.b_volumeLoc.Click += new System.EventHandler(this.b_volumeLoc_Click);
-            // 
-            // l_volumeLocWarn
-            // 
-            this.l_volumeLocWarn.AutoSize = true;
-            this.l_volumeLocWarn.Cursor = System.Windows.Forms.Cursors.Help;
-            this.l_volumeLocWarn.ForeColor = System.Drawing.Color.Red;
-            this.l_volumeLocWarn.Location = new System.Drawing.Point(6, 22);
-            this.l_volumeLocWarn.Name = "l_volumeLocWarn";
-            this.l_volumeLocWarn.Size = new System.Drawing.Size(450, 13);
-            this.l_volumeLocWarn.TabIndex = 7;
-            this.l_volumeLocWarn.Text = "Warning: The volume location cannot be located in an encrypted partition or your " +
-    "home folder!";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Cursor = System.Windows.Forms.Cursors.Help;
-            this.label1.ForeColor = System.Drawing.Color.Red;
-            this.label1.Location = new System.Drawing.Point(62, 67);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(399, 13);
-            this.label1.TabIndex = 8;
-            this.label1.Text = "Warning: This password MUST be the same as your local Windows user password!";
-            // 
-            // t_volumeSize
-            // 
-            this.t_volumeSize.Location = new System.Drawing.Point(295, 174);
-            this.t_volumeSize.Name = "t_volumeSize";
-            this.t_volumeSize.Size = new System.Drawing.Size(100, 20);
-            this.t_volumeSize.TabIndex = 11;
-            // 
-            // l_volumeSize
-            // 
-            this.l_volumeSize.AutoSize = true;
-            this.l_volumeSize.Location = new System.Drawing.Point(197, 177);
-            this.l_volumeSize.Name = "l_volumeSize";
-            this.l_volumeSize.Size = new System.Drawing.Size(93, 13);
-            this.l_volumeSize.TabIndex = 12;
-            this.l_volumeSize.Text = "Volume Size (MB):";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Cursor = System.Windows.Forms.Cursors.Help;
-            this.label2.ForeColor = System.Drawing.Color.Red;
-            this.label2.Location = new System.Drawing.Point(40, 149);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(438, 13);
-            this.label2.TabIndex = 13;
-            this.label2.Text = "Warning: Ensure the volume size is big enough to fit your home folder now and in " +
-    "the future!";
-            // 
-            // b_setVolumeSize
-            // 
-            this.b_setVolumeSize.Location = new System.Drawing.Point(403, 172);
-            this.b_setVolumeSize.Name = "b_setVolumeSize";
-            this.b_setVolumeSize.Size = new System.Drawing.Size(75, 23);
-            this.b_setVolumeSize.TabIndex = 14;
-            this.b_setVolumeSize.Text = "Estimate";
-            this.b_setVolumeSize.UseVisualStyleBackColor = true;
-            this.b_setVolumeSize.Click += new System.EventHandler(this.b_setVolumeSize_Click);
-            // 
             // l_statusLabel
             // 
             this.l_statusLabel.Name = "l_statusLabel";
-            this.l_statusLabel.Size = new System.Drawing.Size(0, 17);
+            this.l_statusLabel.Size = new System.Drawing.Size(39, 17);
+            this.l_statusLabel.Text = "Status";
+            // 
+            // s_progress
+            // 
+            this.s_progress.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.s_progress.Name = "s_progress";
+            this.s_progress.Size = new System.Drawing.Size(100, 16);
+            this.s_progress.Visible = false;
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(488, 17);
+            this.toolStripStatusLabel1.Spring = true;
+            // 
+            // l_homeAlreadyEncrypted
+            // 
+            this.l_homeAlreadyEncrypted.AutoSize = true;
+            this.l_homeAlreadyEncrypted.ForeColor = System.Drawing.SystemColors.HotTrack;
+            this.l_homeAlreadyEncrypted.Location = new System.Drawing.Point(311, 38);
+            this.l_homeAlreadyEncrypted.Name = "l_homeAlreadyEncrypted";
+            this.l_homeAlreadyEncrypted.Size = new System.Drawing.Size(201, 13);
+            this.l_homeAlreadyEncrypted.TabIndex = 15;
+            this.l_homeAlreadyEncrypted.Text = "Your home directory is already encrypted!";
+            this.l_homeAlreadyEncrypted.Visible = false;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(542, 415);
+            this.ClientSize = new System.Drawing.Size(542, 424);
+            this.Controls.Add(this.l_homeAlreadyEncrypted);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.g_homeDirectory);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -343,10 +374,10 @@
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.g_homeDirectory.ResumeLayout(false);
             this.g_homeDirectory.PerformLayout();
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
             this.g_advanced.ResumeLayout(false);
             this.g_advanced.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -380,6 +411,9 @@
         private System.Windows.Forms.Button b_setVolumeSize;
         public System.Windows.Forms.GroupBox g_homeDirectory;
         public System.Windows.Forms.ToolStripStatusLabel l_statusLabel;
+        public System.Windows.Forms.ToolStripProgressBar s_progress;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.Label l_homeAlreadyEncrypted;
     }
 }
 

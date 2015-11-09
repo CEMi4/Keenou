@@ -58,10 +58,14 @@ namespace Keenou
 
 
             // Figure out where the home folder's encrypted file is located for this user //
-            string encContainerLoc = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encContainerLoc", null);
-            if (string.IsNullOrEmpty(encContainerLoc))
+            string encDrive = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encDrive", string.Empty);
+            string encContainerLoc = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encContainerLoc", string.Empty);
+            if (!string.IsNullOrWhiteSpace(encContainerLoc) && !string.IsNullOrWhiteSpace(encDrive) && Directory.Exists(encDrive + @":\"))
             {
-                g_homeDirectory.Location = new Point(22, 27);
+                // We're already running in an encrypted home directory environment! 
+                g_homeDirectory.Enabled = false;
+                l_homeAlreadyEncrypted.Visible = true;
+                l_homeAlreadyEncrypted.Enabled = true;
             }
             // * //
 
@@ -230,6 +234,12 @@ namespace Keenou
             long volSize = Int64.Parse(t_volumeSize.Text);
 
 
+            // Progress bar 
+            s_progress.Value = 0;
+            s_progress.Visible = true;
+            Application.DoEvents();
+            s_progress.ProgressBar.Refresh();
+
 
             // Ensure there will be enough space for the enc volume
             if (volSize > GetAvailableFreeSpace(t_volumeLoc.Text))
@@ -323,15 +333,17 @@ namespace Keenou
 
             }
             // * //
-            
+
 
 
             // Mount home folder's encrypted file as targetDrive //
             using (Process process = new Process())
             {
                 // Give user a status update
+                s_progress.Value = 33;
                 l_statusLabel.Text = "Mounting encrypted volume ...";
                 Application.DoEvents();
+                s_progress.ProgressBar.Refresh();
 
 
                 // GET VeraCrypt DIRECTORY
@@ -380,7 +392,7 @@ namespace Keenou
             int cnt = 10;
             while (!Directory.Exists(targetDrive + @":\") && cnt-- > 0 )
             {
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
             }
             if (!Directory.Exists(targetDrive + @":\"))
             {
@@ -389,7 +401,7 @@ namespace Keenou
             }
             // * //
 
-            return;
+            
 
             // Make sure old location exists (before moving files over to new location) 
             if (!Directory.Exists(this.homeFolder) || !File.Exists(this.homeFolder + @"\" + "NTUSER.DAT"))
@@ -404,6 +416,13 @@ namespace Keenou
             // Robocopy everything over from home directory to encrypted container //
             using (Process process = new Process())
             {
+                // Give user a status update
+                s_progress.Value = 66;
+                l_statusLabel.Text = "Copying home directory to encrypted container ...";
+                Application.DoEvents();
+                s_progress.ProgressBar.Refresh();
+
+
                 ProcessStartInfo startInfo = new ProcessStartInfo();
                 try
                 {
@@ -415,7 +434,7 @@ namespace Keenou
                     process.WaitForExit();
 
                     // Ensure no errors were thrown 
-                    if (process.ExitCode >= 4)
+                    if (process.ExitCode == 16)
                     {
                         MessageBox.Show("ERROR: Error while copying files over!");
                         throw new Exception("ERROR: Error while copying files over!");
@@ -430,6 +449,11 @@ namespace Keenou
             }
             // * //
 
+
+
+            // TODO: Unmount encrypted volume (after beta testing over) 
+            // VeraCrypt should auto-unmount, but we'll do it manually to be sure 
+
             
 
             // Set necessary registry values //
@@ -442,15 +466,15 @@ namespace Keenou
 
             // Re-enable everything //
             this.Cursor = Cursors.Default;
-            g_homeDirectory.Enabled = true;
-            l_statusLabel.Text = "Ready ...";
+            l_statusLabel.Text = "Log out and back in to finish ...";
+            s_progress.Value = 100;
             Application.DoEvents();
             // * //
 
 
 
             // Inform user of the good news 
-            MessageBox.Show("Almost done!  You must log out and log back in to finish the migration!");
+            MessageBox.Show("Almost done!  You must log out and log back in via Keenou-pGina to finish the migration!");
         }
         // * //
 
