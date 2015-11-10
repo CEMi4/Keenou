@@ -54,8 +54,8 @@
             this.t_password = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.l_statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.s_progress = new System.Windows.Forms.ToolStripProgressBar();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.s_progress = new System.Windows.Forms.ToolStripProgressBar();
             this.l_homeAlreadyEncrypted = new System.Windows.Forms.Label();
             this.g_homeDirectory.SuspendLayout();
             this.g_advanced.SuspendLayout();
@@ -335,18 +335,18 @@
             this.l_statusLabel.Size = new System.Drawing.Size(39, 17);
             this.l_statusLabel.Text = "Status";
             // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(488, 17);
+            this.toolStripStatusLabel1.Spring = true;
+            // 
             // s_progress
             // 
             this.s_progress.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.s_progress.Name = "s_progress";
             this.s_progress.Size = new System.Drawing.Size(100, 16);
             this.s_progress.Visible = false;
-            // 
-            // toolStripStatusLabel1
-            // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(488, 17);
-            this.toolStripStatusLabel1.Spring = true;
             // 
             // l_homeAlreadyEncrypted
             // 

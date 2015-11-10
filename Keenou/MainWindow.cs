@@ -78,94 +78,6 @@ namespace Keenou
 
 
 
-        // Get SHA-512 signature from input text //
-        public static string SHA512_Base64(string input)
-        {
-            using (SHA512 alg = SHA512.Create())
-            {
-                byte[] result = alg.ComputeHash(Encoding.UTF8.GetBytes(input));
-                return Convert.ToBase64String(result);
-            }
-        }
-        // * //
-
-
-
-        // Calculate the available free space for the drive that the given path resides on //
-        private long GetAvailableFreeSpace(string path)
-        {
-            string targetDrive = Path.GetPathRoot(path);
-            DriveInfo di = new DriveInfo(targetDrive);
-            long targetSpace = 0;
-            if (di != null && di.IsReady)
-            {
-                targetSpace = di.AvailableFreeSpace / (1024 * 1024);
-            }
-
-            return targetSpace;
-        }
-        // * //
-
-
-
-        // Use powershell to get a rough estimate of the directory size //
-        private long GetDirectorySize(string directory)
-        {
-            long size = 0;
-
-            using (Process process = new Process())
-            {
-
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                try
-                {
-                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                    startInfo.CreateNoWindow = true;
-                    startInfo.FileName = "cmd.exe";
-                    startInfo.RedirectStandardOutput = true;
-                    startInfo.UseShellExecute = false;
-                    startInfo.Arguments = "/C powershell -Command \"& {Get-ChildItem '" + directory + "' -recurse | Measure-Object -property length -sum}\"";
-                    process.StartInfo = startInfo;
-                    process.Start();
-                    string output = process.StandardOutput.ReadToEnd();
-                    process.WaitForExit();
-
-                    // Ensure no errors were thrown 
-                    if (process.ExitCode != 0)
-                    {
-                        MessageBox.Show("ERROR: Error while determining directory size!");
-                        throw new Exception("ERROR: Error while determining directory size!");
-                    }
-
-
-                    string[] tokenize = output.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string token in tokenize)
-                    {
-                        if (token.StartsWith("Sum"))
-                        {
-                            Match m = new Regex(@"\d+$").Match(token);
-                            if (m.Success)
-                            {
-                                size = Int64.Parse(m.Value);
-                            }
-                            break;
-                        }
-                    }
-                }
-                catch (Exception err)
-                {
-                    MessageBox.Show("ERROR: Failed to determine directory size!");
-                    throw new Exception("ERROR: Failed to determine directory size!", err);
-                }
-
-            }
-
-            return size;
-        }
-        // * //
-
-
-
         // Internal events  // 
         private void MainWindow_Load(object sender, EventArgs e)
         {
@@ -182,50 +94,68 @@ namespace Keenou
 
             // Set output volume location
             t_volumeLoc.Text = this.defaultVolumeLoc;
-            
+
         }
         // * //
 
 
 
         // When user hits the encrypt button for Home Folder //
+        private void ReportEncryptHomeError(BooleanResult res)
+        {
+            if (res.Message != null)
+            {
+                MessageBox.Show(res.Message);
+            }
+
+            // Reset state of window, and display error conditions 
+            this.Cursor = Cursors.Default;
+            g_homeDirectory.Enabled = true;
+            l_statusLabel.Text = "ERROR";
+            s_progress.Value = 0;
+            s_progress.Visible = false;
+        }
         private void b_encrypt_Click(object sender, EventArgs e)
         {
 
             // Sanity checks //
             if (string.IsNullOrWhiteSpace(t_volumeSize.Text))
             {
-                MessageBox.Show("ERROR: Must specify a volume size!");
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "Please specify a volume size!" });
                 return;
             }
             if (t_password.Text.Length <= 0 || !string.Equals(t_password.Text, t_passwordConf.Text))
             {
-                MessageBox.Show("ERROR: Passwords provided must match and be non-zero in length!");
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "Passwords provided must match and be non-zero in length!" });
                 return;
             }
             if (t_volumeLoc.Text.Length <= 0)
             {
-                MessageBox.Show("ERROR: You must specify a encrypted volume location!");
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "Please specify a encrypted volume location!" });
                 return;
             }
             if (t_volumeLoc.Text.Contains(this.homeFolder))
             {
-                MessageBox.Show("ERROR: You cannot put your encrypted volume in your home directory!");
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "You cannot put your encrypted volume in your home directory!" });
                 return;
             }
             if (c_hash.SelectedIndex < 0)
             {
-                MessageBox.Show("ERROR: Please choose a hash!");
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "Please choose a hash!" });
                 return;
             }
             if (c_cipher.SelectedIndex < 0)
             {
-                MessageBox.Show("ERROR: Please choose a cipher!");
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "Please choose a cipher!" });
                 return;
             }
             // TODO: warn user if volume size will not fit home directory
             // * //
 
+
+
+            // Helper result object
+            BooleanResult res = null;
 
 
             // Get user-specified values 
@@ -242,9 +172,9 @@ namespace Keenou
 
 
             // Ensure there will be enough space for the enc volume
-            if (volSize > GetAvailableFreeSpace(t_volumeLoc.Text))
+            if (volSize > Toolbox.GetAvailableFreeSpace(t_volumeLoc.Text))
             {
-                MessageBox.Show("ERROR: Your encrypted volume will not fit on the chosen target drive!");
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "ERROR: Your encrypted volume will not fit on the chosen target drive!" });
                 return;
             }
 
@@ -272,180 +202,53 @@ namespace Keenou
             }
             if (targetDrive == null)
             {
-                MessageBox.Show("ERROR: Cannot find a free drive letter!");
-                throw new Exception("ERROR: Cannot find a free drive letter!");
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "ERROR: Cannot find a free drive letter!" });
+                return;
             }
             // * //
-            
 
-            
+
+
+
+
             // Create new encrypted volume //
-            using (Process process = new Process())
+            l_statusLabel.Text = "Creating encrypted volume ...";
+            Application.DoEvents();
+            res = EncryptHome.CreateEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, Toolbox.SHA512_Base64(t_password.Text), cipherChosen, volSize);
+            if (res == null || !res.Success)
             {
-                // Give user a status update
-                l_statusLabel.Text = "Creating encrypted volume ...";
-                Application.DoEvents();
-
-
-                // GET VeraCrypt DIRECTORY
-                string programDir = (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") ?? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) + @"\VeraCrypt\";
-
-                // Make sure veracrypt is installed
-                if (!Directory.Exists(programDir))
-                {
-                    MessageBox.Show("ERROR: VeraCrypt inaccessible!");
-                    throw new Exception("ERROR: VeraCrypt inaccessible!");
-                }
-
-
-                // MOUNT ENCRYPTED CONTAINER (TODO: sanitize password?)
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                try
-                {
-                    //.\"VeraCrypt Format.exe" /create test.hc /password testing /size 10M /hash whirlpool /encryption AES(Twofish(Serpent)) /filesystem NTFS /force /silent
-
-                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                    startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"\"" + programDir + "VeraCrypt Format.exe\" /create \"" + t_volumeLoc.Text + "\" /size " + volSize + "M /hash " + hashChosen + " /encryption " + cipherChosen + " /password \"" + SHA512_Base64(t_password.Text) + "\" /filesystem NTFS /force /dynamic /silent\"";
-                    process.StartInfo = startInfo;
-                    process.Start();
-                    process.WaitForExit(); // this does not work, since "VeraCrypt Format.exe" exits but child continues running 
-
-                    // Wait until the child process dies 
-                    while (Process.GetProcessesByName("VeraCrypt Format").Length > 0)
-                    {
-                        Thread.Sleep(2000);
-                    }
-
-                    // Ensure no errors were thrown 
-                    if (process.ExitCode != 0)
-                    {
-                        MessageBox.Show("ERROR: Error while creating encrypted file!");
-                        throw new Exception("ERROR: Error while creating encrypted file!");
-                    }
-
-                }
-                catch (Exception err)
-                {
-                    MessageBox.Show("ERROR: Failed to create encrypted volume!");
-                    throw new Exception("ERROR: Failed to create encrypted volume!", err);
-                }
-
+                ReportEncryptHomeError(res);
+                return;
             }
             // * //
 
 
 
             // Mount home folder's encrypted file as targetDrive //
-            using (Process process = new Process())
+            s_progress.Value = 33;
+            l_statusLabel.Text = "Mounting encrypted volume ...";
+            Application.DoEvents();
+            s_progress.ProgressBar.Refresh();
+            res = EncryptHome.MountEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, Toolbox.SHA512_Base64(t_password.Text));
+            if (res == null || !res.Success)
             {
-                // Give user a status update
-                s_progress.Value = 33;
-                l_statusLabel.Text = "Mounting encrypted volume ...";
-                Application.DoEvents();
-                s_progress.ProgressBar.Refresh();
-
-
-                // GET VeraCrypt DIRECTORY
-                string programDir = (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") ?? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) + @"\VeraCrypt\";
-
-                // Make sure veracrypt is installed
-                if (!Directory.Exists(programDir))
-                {
-                    MessageBox.Show("ERROR: VeraCrypt inaccessible!");
-                    throw new Exception("ERROR: VeraCrypt inaccessible!");
-                }
-
-
-                // MOUNT ENCRYPTED CONTAINER (TODO: sanitize password?)
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                try
-                {
-                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                    startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"\"" + programDir + "VeraCrypt.exe\" /hash " + hashChosen + " /v \"" + t_volumeLoc.Text + "\" /l " + targetDrive + " /f /h n /p \"" + SHA512_Base64(t_password.Text) + "\" /q /s\"";
-                    process.StartInfo = startInfo;
-                    process.Start();
-                    process.WaitForExit();
-
-                    // Ensure no errors were thrown 
-                    if (process.ExitCode != 0)
-                    {
-                        MessageBox.Show("ERROR: Error while mounting encrypted file!");
-                        throw new Exception("ERROR: Error while mounting encrypted file!");
-                    }
-
-                    //m_logger.InfoFormat("CMD Argument: {0}", startInfo.Arguments);
-                }
-                catch (Exception err)
-                {
-                    MessageBox.Show("ERROR: Failed to mount encrypted home volume. " + err.Message);
-                    throw new Exception("ERROR: Failed to mount encrypted home volume. " + err.Message);
-                }
-
+                ReportEncryptHomeError(res);
+                return;
             }
             // * //
 
 
 
-            // Make sure encrypted system was mounted //
-            int cnt = 10;
-            while (!Directory.Exists(targetDrive + @":\") && cnt-- > 0 )
+            // Copy everything over from home directory to encrypted container //
+            s_progress.Value = 66;
+            l_statusLabel.Text = "Copying home directory to encrypted container ...";
+            Application.DoEvents();
+            s_progress.ProgressBar.Refresh();
+            res = EncryptHome.CopyDataFromHomeFolder(this.homeFolder, targetDrive);
+            if (res == null || !res.Success)
             {
-                Thread.Sleep(1000);
-            }
-            if (!Directory.Exists(targetDrive + @":\"))
-            {
-                MessageBox.Show("ERROR: Could not mount encrypted drive!");
-                throw new Exception("ERROR: Could not mount encrypted drive!");
-            }
-            // * //
-
-            
-
-            // Make sure old location exists (before moving files over to new location) 
-            if (!Directory.Exists(this.homeFolder) || !File.Exists(this.homeFolder + @"\" + "NTUSER.DAT"))
-            {
-                MessageBox.Show("ERROR: Current home directory inaccessible!");
-                throw new Exception("ERROR: Current home directory inaccessible!");
-            }
-            // * //
-
-
-
-            // Robocopy everything over from home directory to encrypted container //
-            using (Process process = new Process())
-            {
-                // Give user a status update
-                s_progress.Value = 66;
-                l_statusLabel.Text = "Copying home directory to encrypted container ...";
-                Application.DoEvents();
-                s_progress.ProgressBar.Refresh();
-
-
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                try
-                {
-                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                    startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"robocopy \"" + this.homeFolder + "\" " + targetDrive + ":\\ /MIR /copyall /sl /xj /r:0\"";
-                    process.StartInfo = startInfo;
-                    process.Start(); // this may take a while! 
-                    process.WaitForExit();
-
-                    // Ensure no errors were thrown 
-                    if (process.ExitCode == 16)
-                    {
-                        MessageBox.Show("ERROR: Error while copying files over!");
-                        throw new Exception("ERROR: Error while copying files over!");
-                    }
-
-                }
-                catch (Exception err)
-                {
-                    MessageBox.Show("ERROR: Failed to finish moving home volume. " + err.Message);
-                    throw new Exception("ERROR: Failed to finish moving home volume. " + err.Message);
-                }
+                ReportEncryptHomeError(res);
+                return;
             }
             // * //
 
@@ -454,7 +257,7 @@ namespace Keenou
             // TODO: Unmount encrypted volume (after beta testing over) 
             // VeraCrypt should auto-unmount, but we'll do it manually to be sure 
 
-            
+
 
             // Set necessary registry values //
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encContainerLoc", t_volumeLoc.Text);
@@ -477,6 +280,7 @@ namespace Keenou
             MessageBox.Show("Almost done!  You must log out and log back in via Keenou-pGina to finish the migration!");
         }
         // * //
+
 
 
         // When user hits "Choose" box to override default volume location //
@@ -522,13 +326,13 @@ namespace Keenou
 
 
             // Determine free space on enc volume target drive 
-            long targetSpace = GetAvailableFreeSpace(t_volumeLoc.Text);
+            long targetSpace = Toolbox.GetAvailableFreeSpace(t_volumeLoc.Text);
 
 
             // Do calculation of current size (if not already done) 
             if (this.homeDirSize <= 0)
             {
-                this.homeDirSize = GetDirectorySize(this.homeFolder);
+                this.homeDirSize = Toolbox.GetDirectorySize(this.homeFolder);
             }
 
 
@@ -541,7 +345,7 @@ namespace Keenou
             if (volSizeSuggested >= targetSpace)
             {
                 string targetDrive = Path.GetPathRoot(t_volumeLoc.Text);
-                MessageBox.Show("Warning: There is not enough space on the " + targetDrive + " drive! " );
+                MessageBox.Show("Warning: There is not enough space on the " + targetDrive + " drive! ");
             }
 
 
