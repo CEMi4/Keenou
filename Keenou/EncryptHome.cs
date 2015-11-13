@@ -135,7 +135,7 @@ namespace Keenou
 
 
 
-        // Robocopy everything over from home directory to encrypted container //
+        // Robocopy everything over from source directory to target encrypted container //
         public static BooleanResult CopyDataFromHomeFolder(string homeFolder, string targetDrive)
         {
 
@@ -147,6 +147,18 @@ namespace Keenou
             // * //
 
 
+            return CopyDataFromFolder(homeFolder, targetDrive);
+        }
+        public static BooleanResult CopyDataFromFolder(string sourceFolder, string targetDrive)
+        {
+
+            // Make sure old location exists (before moving files over to new location) 
+            if (!Directory.Exists(sourceFolder))
+            {
+                return new BooleanResult() { Success = false, Message = "ERROR: Source directory inaccessible!" };
+            }
+            // * //
+
 
             using (Process process = new Process())
             {
@@ -156,7 +168,7 @@ namespace Keenou
                 {
                     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"robocopy \"" + homeFolder + "\" " + targetDrive + ":\\ /MIR /copyall /sl /xj /r:0\"";
+                    startInfo.Arguments = "/C \"robocopy \"" + sourceFolder + "\" " + targetDrive + ":\\ /MIR /copyall /sl /xj /r:0\"";
                     process.StartInfo = startInfo;
                     process.Start(); // this may take a while! 
                     process.WaitForExit();

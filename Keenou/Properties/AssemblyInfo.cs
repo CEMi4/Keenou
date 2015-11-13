@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Keenou")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Keenou is designed to make encrypting your personal and private data as easy as possible, even if you have no experience with encryption.\r\n\r\nKeenou-pGINA is the Credential Provider portion of Keenou based on pGina, which handles setting up your encrypted home folder upon login. Only local accounts are supported so far. ")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("CEMi4, LLC")]
 [assembly: AssemblyProduct("Keenou")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]

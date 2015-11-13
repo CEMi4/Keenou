@@ -63,7 +63,7 @@ namespace Keenou
             if (!string.IsNullOrWhiteSpace(encContainerLoc) && !string.IsNullOrWhiteSpace(encDrive) && Directory.Exists(encDrive + @":\"))
             {
                 // We're already running in an encrypted home directory environment! 
-                g_homeDirectory.Enabled = false;
+                g_tabContainer.Controls[0].Enabled = false;
                 l_homeAlreadyEncrypted.Visible = true;
                 l_homeAlreadyEncrypted.Enabled = true;
             }
@@ -110,7 +110,7 @@ namespace Keenou
 
             // Reset state of window, and display error conditions 
             this.Cursor = Cursors.Default;
-            g_homeDirectory.Enabled = true;
+            g_tabContainer.Controls[0].Enabled = true;
             l_statusLabel.Text = "ERROR";
             s_progress.Value = 0;
             s_progress.Visible = false;
@@ -182,7 +182,7 @@ namespace Keenou
 
             // Disable while we calcualte stuff 
             this.Cursor = Cursors.WaitCursor;
-            g_homeDirectory.Enabled = false;
+            g_tabContainer.Controls[0].Enabled = false;
 
 
 
@@ -320,7 +320,7 @@ namespace Keenou
         {
             // Disable while we calcualte stuff 
             this.Cursor = Cursors.WaitCursor;
-            g_homeDirectory.Enabled = false;
+            g_tabContainer.Controls[0].Enabled = false;
             l_statusLabel.Text = "Calculating your home directory size  ...";
             Application.DoEvents();
 
@@ -351,9 +351,28 @@ namespace Keenou
 
             // Re-enable everything 
             this.Cursor = Cursors.Default;
-            g_homeDirectory.Enabled = true;
+            g_tabContainer.Controls[0].Enabled = true;
             l_statusLabel.Text = "Ready ...";
             Application.DoEvents();
+        }
+        // * //
+
+
+
+        // MENU ITEMS //
+
+        // User clicks the "About" menu item 
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutBox ab = new AboutBox();
+            ab.ShowDialog();
+        }
+
+        // User clicks "Add -> New Personal Folder" menu item
+        private void newPersonalFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddPersonalFolder pf = new AddPersonalFolder();
+            pf.ShowDialog();
         }
         // * //
 

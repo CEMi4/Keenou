@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.g_homeDirectory = new System.Windows.Forms.GroupBox();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.b_setVolumeSize = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.l_volumeSize = new System.Windows.Forms.Label();
@@ -57,43 +57,61 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.s_progress = new System.Windows.Forms.ToolStripProgressBar();
             this.l_homeAlreadyEncrypted = new System.Windows.Forms.Label();
-            this.g_homeDirectory.SuspendLayout();
+            this.g_tabContainer = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.g_PersonalFolderFlowLayout = new System.Windows.Forms.FlowLayoutPanel();
+            this.g_personalFolderTemplate = new System.Windows.Forms.Panel();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.m_menuBar = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newPersonalFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.printToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.printPreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.g_advanced.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.g_tabContainer.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
+            this.g_PersonalFolderFlowLayout.SuspendLayout();
+            this.m_menuBar.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // g_homeDirectory
-            // 
-            this.g_homeDirectory.Controls.Add(this.b_setVolumeSize);
-            this.g_homeDirectory.Controls.Add(this.label2);
-            this.g_homeDirectory.Controls.Add(this.l_volumeSize);
-            this.g_homeDirectory.Controls.Add(this.t_volumeSize);
-            this.g_homeDirectory.Controls.Add(this.label1);
-            this.g_homeDirectory.Controls.Add(this.b_encrypt);
-            this.g_homeDirectory.Controls.Add(this.g_advanced);
-            this.g_homeDirectory.Controls.Add(this.l_sid);
-            this.g_homeDirectory.Controls.Add(this.l_userName);
-            this.g_homeDirectory.Controls.Add(this.t_sid);
-            this.g_homeDirectory.Controls.Add(this.t_userName);
-            this.g_homeDirectory.Controls.Add(this.l_passwordConf);
-            this.g_homeDirectory.Controls.Add(this.t_passwordConf);
-            this.g_homeDirectory.Controls.Add(this.l_password);
-            this.g_homeDirectory.Controls.Add(this.t_password);
-            this.g_homeDirectory.Location = new System.Drawing.Point(23, 25);
-            this.g_homeDirectory.Name = "g_homeDirectory";
-            this.g_homeDirectory.Size = new System.Drawing.Size(497, 353);
-            this.g_homeDirectory.TabIndex = 0;
-            this.g_homeDirectory.TabStop = false;
-            this.g_homeDirectory.Text = "Home Directory";
             // 
             // b_setVolumeSize
             // 
-            this.b_setVolumeSize.Location = new System.Drawing.Point(403, 172);
+            this.b_setVolumeSize.BackColor = System.Drawing.Color.SteelBlue;
+            this.b_setVolumeSize.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.b_setVolumeSize.FlatAppearance.MouseDownBackColor = System.Drawing.Color.CornflowerBlue;
+            this.b_setVolumeSize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SteelBlue;
+            this.b_setVolumeSize.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.b_setVolumeSize.ForeColor = System.Drawing.Color.White;
+            this.b_setVolumeSize.Location = new System.Drawing.Point(409, 163);
             this.b_setVolumeSize.Name = "b_setVolumeSize";
             this.b_setVolumeSize.Size = new System.Drawing.Size(75, 23);
             this.b_setVolumeSize.TabIndex = 14;
             this.b_setVolumeSize.Text = "Estimate";
-            this.b_setVolumeSize.UseVisualStyleBackColor = true;
+            this.b_setVolumeSize.UseVisualStyleBackColor = false;
             this.b_setVolumeSize.Click += new System.EventHandler(this.b_setVolumeSize_Click);
             // 
             // label2
@@ -101,7 +119,7 @@
             this.label2.AutoSize = true;
             this.label2.Cursor = System.Windows.Forms.Cursors.Help;
             this.label2.ForeColor = System.Drawing.Color.Red;
-            this.label2.Location = new System.Drawing.Point(40, 149);
+            this.label2.Location = new System.Drawing.Point(46, 140);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(438, 13);
             this.label2.TabIndex = 13;
@@ -111,7 +129,7 @@
             // l_volumeSize
             // 
             this.l_volumeSize.AutoSize = true;
-            this.l_volumeSize.Location = new System.Drawing.Point(197, 177);
+            this.l_volumeSize.Location = new System.Drawing.Point(203, 168);
             this.l_volumeSize.Name = "l_volumeSize";
             this.l_volumeSize.Size = new System.Drawing.Size(93, 13);
             this.l_volumeSize.TabIndex = 12;
@@ -119,7 +137,7 @@
             // 
             // t_volumeSize
             // 
-            this.t_volumeSize.Location = new System.Drawing.Point(295, 174);
+            this.t_volumeSize.Location = new System.Drawing.Point(301, 165);
             this.t_volumeSize.Name = "t_volumeSize";
             this.t_volumeSize.Size = new System.Drawing.Size(100, 20);
             this.t_volumeSize.TabIndex = 11;
@@ -129,7 +147,7 @@
             this.label1.AutoSize = true;
             this.label1.Cursor = System.Windows.Forms.Cursors.Help;
             this.label1.ForeColor = System.Drawing.Color.Red;
-            this.label1.Location = new System.Drawing.Point(62, 67);
+            this.label1.Location = new System.Drawing.Point(68, 58);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(399, 13);
             this.label1.TabIndex = 8;
@@ -137,12 +155,18 @@
             // 
             // b_encrypt
             // 
-            this.b_encrypt.Location = new System.Drawing.Point(416, 324);
+            this.b_encrypt.BackColor = System.Drawing.Color.SteelBlue;
+            this.b_encrypt.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.b_encrypt.FlatAppearance.MouseDownBackColor = System.Drawing.Color.CornflowerBlue;
+            this.b_encrypt.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SteelBlue;
+            this.b_encrypt.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.b_encrypt.ForeColor = System.Drawing.Color.White;
+            this.b_encrypt.Location = new System.Drawing.Point(422, 315);
             this.b_encrypt.Name = "b_encrypt";
             this.b_encrypt.Size = new System.Drawing.Size(75, 23);
             this.b_encrypt.TabIndex = 10;
             this.b_encrypt.Text = "Encrypt";
-            this.b_encrypt.UseVisualStyleBackColor = true;
+            this.b_encrypt.UseVisualStyleBackColor = false;
             this.b_encrypt.Click += new System.EventHandler(this.b_encrypt_Click);
             // 
             // g_advanced
@@ -155,7 +179,8 @@
             this.g_advanced.Controls.Add(this.c_cipher);
             this.g_advanced.Controls.Add(this.l_cipher);
             this.g_advanced.Controls.Add(this.c_hash);
-            this.g_advanced.Location = new System.Drawing.Point(13, 200);
+            this.g_advanced.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.g_advanced.Location = new System.Drawing.Point(19, 191);
             this.g_advanced.Name = "g_advanced";
             this.g_advanced.Size = new System.Drawing.Size(465, 109);
             this.g_advanced.TabIndex = 9;
@@ -176,12 +201,18 @@
             // 
             // b_volumeLoc
             // 
+            this.b_volumeLoc.BackColor = System.Drawing.Color.SteelBlue;
+            this.b_volumeLoc.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.b_volumeLoc.FlatAppearance.MouseDownBackColor = System.Drawing.Color.CornflowerBlue;
+            this.b_volumeLoc.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SteelBlue;
+            this.b_volumeLoc.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.b_volumeLoc.ForeColor = System.Drawing.Color.White;
             this.b_volumeLoc.Location = new System.Drawing.Point(373, 43);
             this.b_volumeLoc.Name = "b_volumeLoc";
             this.b_volumeLoc.Size = new System.Drawing.Size(75, 23);
             this.b_volumeLoc.TabIndex = 6;
             this.b_volumeLoc.Text = "Choose";
-            this.b_volumeLoc.UseVisualStyleBackColor = true;
+            this.b_volumeLoc.UseVisualStyleBackColor = false;
             this.b_volumeLoc.Click += new System.EventHandler(this.b_volumeLoc_Click);
             // 
             // l_volumeLoc
@@ -212,6 +243,7 @@
             // c_cipher
             // 
             this.c_cipher.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.c_cipher.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.c_cipher.Items.AddRange(new object[] {
             "AES",
             "Serpent",
@@ -238,6 +270,7 @@
             // c_hash
             // 
             this.c_hash.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.c_hash.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.c_hash.Items.AddRange(new object[] {
             "sha256",
             "sha512",
@@ -251,7 +284,7 @@
             // l_sid
             // 
             this.l_sid.AutoSize = true;
-            this.l_sid.Location = new System.Drawing.Point(171, 36);
+            this.l_sid.Location = new System.Drawing.Point(177, 27);
             this.l_sid.Name = "l_sid";
             this.l_sid.Size = new System.Drawing.Size(28, 13);
             this.l_sid.TabIndex = 7;
@@ -260,7 +293,7 @@
             // l_userName
             // 
             this.l_userName.AutoSize = true;
-            this.l_userName.Location = new System.Drawing.Point(10, 36);
+            this.l_userName.Location = new System.Drawing.Point(16, 27);
             this.l_userName.Name = "l_userName";
             this.l_userName.Size = new System.Drawing.Size(58, 13);
             this.l_userName.TabIndex = 6;
@@ -268,7 +301,7 @@
             // 
             // t_sid
             // 
-            this.t_sid.Location = new System.Drawing.Point(205, 33);
+            this.t_sid.Location = new System.Drawing.Point(211, 24);
             this.t_sid.Name = "t_sid";
             this.t_sid.ReadOnly = true;
             this.t_sid.Size = new System.Drawing.Size(273, 20);
@@ -276,7 +309,7 @@
             // 
             // t_userName
             // 
-            this.t_userName.Location = new System.Drawing.Point(74, 33);
+            this.t_userName.Location = new System.Drawing.Point(80, 24);
             this.t_userName.Name = "t_userName";
             this.t_userName.ReadOnly = true;
             this.t_userName.Size = new System.Drawing.Size(91, 20);
@@ -285,7 +318,7 @@
             // l_passwordConf
             // 
             this.l_passwordConf.AutoSize = true;
-            this.l_passwordConf.Location = new System.Drawing.Point(190, 120);
+            this.l_passwordConf.Location = new System.Drawing.Point(196, 111);
             this.l_passwordConf.Name = "l_passwordConf";
             this.l_passwordConf.Size = new System.Drawing.Size(99, 13);
             this.l_passwordConf.TabIndex = 3;
@@ -293,7 +326,7 @@
             // 
             // t_passwordConf
             // 
-            this.t_passwordConf.Location = new System.Drawing.Point(295, 117);
+            this.t_passwordConf.Location = new System.Drawing.Point(301, 108);
             this.t_passwordConf.Name = "t_passwordConf";
             this.t_passwordConf.Size = new System.Drawing.Size(183, 20);
             this.t_passwordConf.TabIndex = 2;
@@ -302,7 +335,7 @@
             // l_password
             // 
             this.l_password.AutoSize = true;
-            this.l_password.Location = new System.Drawing.Point(233, 94);
+            this.l_password.Location = new System.Drawing.Point(239, 85);
             this.l_password.Name = "l_password";
             this.l_password.Size = new System.Drawing.Size(56, 13);
             this.l_password.TabIndex = 1;
@@ -310,7 +343,7 @@
             // 
             // t_password
             // 
-            this.t_password.Location = new System.Drawing.Point(295, 91);
+            this.t_password.Location = new System.Drawing.Point(301, 82);
             this.t_password.Name = "t_password";
             this.t_password.Size = new System.Drawing.Size(183, 20);
             this.t_password.TabIndex = 0;
@@ -318,27 +351,30 @@
             // 
             // statusStrip1
             // 
+            this.statusStrip1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.l_statusLabel,
             this.toolStripStatusLabel1,
             this.s_progress});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 402);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 427);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(542, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(541, 22);
             this.statusStrip1.SizingGrip = false;
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // l_statusLabel
             // 
+            this.l_statusLabel.BackColor = System.Drawing.SystemColors.Control;
             this.l_statusLabel.Name = "l_statusLabel";
             this.l_statusLabel.Size = new System.Drawing.Size(39, 17);
             this.l_statusLabel.Text = "Status";
             // 
             // toolStripStatusLabel1
             // 
+            this.toolStripStatusLabel1.BackColor = System.Drawing.SystemColors.Control;
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(488, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(354, 17);
             this.toolStripStatusLabel1.Spring = true;
             // 
             // s_progress
@@ -352,32 +388,324 @@
             // 
             this.l_homeAlreadyEncrypted.AutoSize = true;
             this.l_homeAlreadyEncrypted.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.l_homeAlreadyEncrypted.Location = new System.Drawing.Point(311, 38);
+            this.l_homeAlreadyEncrypted.Location = new System.Drawing.Point(161, 6);
             this.l_homeAlreadyEncrypted.Name = "l_homeAlreadyEncrypted";
             this.l_homeAlreadyEncrypted.Size = new System.Drawing.Size(201, 13);
             this.l_homeAlreadyEncrypted.TabIndex = 15;
             this.l_homeAlreadyEncrypted.Text = "Your home directory is already encrypted!";
             this.l_homeAlreadyEncrypted.Visible = false;
             // 
+            // g_tabContainer
+            // 
+            this.g_tabContainer.Controls.Add(this.tabPage1);
+            this.g_tabContainer.Controls.Add(this.tabPage2);
+            this.g_tabContainer.Controls.Add(this.tabPage3);
+            this.g_tabContainer.Location = new System.Drawing.Point(11, 37);
+            this.g_tabContainer.Name = "g_tabContainer";
+            this.g_tabContainer.SelectedIndex = 0;
+            this.g_tabContainer.Size = new System.Drawing.Size(518, 377);
+            this.g_tabContainer.TabIndex = 16;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.AutoScroll = true;
+            this.tabPage1.BackColor = System.Drawing.Color.White;
+            this.tabPage1.Controls.Add(this.b_setVolumeSize);
+            this.tabPage1.Controls.Add(this.l_homeAlreadyEncrypted);
+            this.tabPage1.Controls.Add(this.label2);
+            this.tabPage1.Controls.Add(this.l_volumeSize);
+            this.tabPage1.Controls.Add(this.l_userName);
+            this.tabPage1.Controls.Add(this.t_volumeSize);
+            this.tabPage1.Controls.Add(this.t_password);
+            this.tabPage1.Controls.Add(this.label1);
+            this.tabPage1.Controls.Add(this.l_password);
+            this.tabPage1.Controls.Add(this.b_encrypt);
+            this.tabPage1.Controls.Add(this.t_passwordConf);
+            this.tabPage1.Controls.Add(this.g_advanced);
+            this.tabPage1.Controls.Add(this.l_passwordConf);
+            this.tabPage1.Controls.Add(this.l_sid);
+            this.tabPage1.Controls.Add(this.t_userName);
+            this.tabPage1.Controls.Add(this.t_sid);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(510, 351);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "Home Folder";
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.g_PersonalFolderFlowLayout);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(510, 351);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Personal Folders";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // g_PersonalFolderFlowLayout
+            // 
+            this.g_PersonalFolderFlowLayout.Controls.Add(this.g_personalFolderTemplate);
+            this.g_PersonalFolderFlowLayout.Location = new System.Drawing.Point(3, 3);
+            this.g_PersonalFolderFlowLayout.Name = "g_PersonalFolderFlowLayout";
+            this.g_PersonalFolderFlowLayout.Size = new System.Drawing.Size(501, 345);
+            this.g_PersonalFolderFlowLayout.TabIndex = 0;
+            // 
+            // g_personalFolderTemplate
+            // 
+            this.g_personalFolderTemplate.Location = new System.Drawing.Point(3, 3);
+            this.g_personalFolderTemplate.Name = "g_personalFolderTemplate";
+            this.g_personalFolderTemplate.Size = new System.Drawing.Size(499, 110);
+            this.g_personalFolderTemplate.TabIndex = 0;
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(510, 351);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Applications";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // m_menuBar
+            // 
+            this.m_menuBar.BackColor = System.Drawing.SystemColors.Control;
+            this.m_menuBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.editToolStripMenuItem,
+            this.toolsToolStripMenuItem,
+            this.helpToolStripMenuItem});
+            this.m_menuBar.Location = new System.Drawing.Point(0, 0);
+            this.m_menuBar.Name = "m_menuBar";
+            this.m_menuBar.Size = new System.Drawing.Size(541, 24);
+            this.m_menuBar.TabIndex = 17;
+            this.m_menuBar.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newToolStripMenuItem,
+            this.openToolStripMenuItem,
+            this.toolStripSeparator,
+            this.saveToolStripMenuItem,
+            this.saveAsToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.printToolStripMenuItem,
+            this.printPreviewToolStripMenuItem,
+            this.toolStripSeparator2,
+            this.exitToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "&File";
+            // 
+            // newToolStripMenuItem
+            // 
+            this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newPersonalFolderToolStripMenuItem});
+            this.newToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("newToolStripMenuItem.Image")));
+            this.newToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
+            this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.newToolStripMenuItem.Text = "&Add";
+            // 
+            // newPersonalFolderToolStripMenuItem
+            // 
+            this.newPersonalFolderToolStripMenuItem.Name = "newPersonalFolderToolStripMenuItem";
+            this.newPersonalFolderToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.newPersonalFolderToolStripMenuItem.Text = "New &Personal Folder";
+            this.newPersonalFolderToolStripMenuItem.Click += new System.EventHandler(this.newPersonalFolderToolStripMenuItem_Click);
+            // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripMenuItem.Image")));
+            this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.openToolStripMenuItem.Text = "&Open";
+            // 
+            // toolStripSeparator
+            // 
+            this.toolStripSeparator.Name = "toolStripSeparator";
+            this.toolStripSeparator.Size = new System.Drawing.Size(143, 6);
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripMenuItem.Image")));
+            this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.saveToolStripMenuItem.Text = "&Save";
+            // 
+            // saveAsToolStripMenuItem
+            // 
+            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.saveAsToolStripMenuItem.Text = "Save &As";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(143, 6);
+            // 
+            // printToolStripMenuItem
+            // 
+            this.printToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("printToolStripMenuItem.Image")));
+            this.printToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.printToolStripMenuItem.Name = "printToolStripMenuItem";
+            this.printToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
+            this.printToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.printToolStripMenuItem.Text = "&Print";
+            // 
+            // printPreviewToolStripMenuItem
+            // 
+            this.printPreviewToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("printPreviewToolStripMenuItem.Image")));
+            this.printPreviewToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.printPreviewToolStripMenuItem.Name = "printPreviewToolStripMenuItem";
+            this.printPreviewToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.printPreviewToolStripMenuItem.Text = "Print Pre&view";
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(143, 6);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.exitToolStripMenuItem.Text = "E&xit";
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.undoToolStripMenuItem,
+            this.redoToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.cutToolStripMenuItem,
+            this.copyToolStripMenuItem,
+            this.pasteToolStripMenuItem,
+            this.toolStripSeparator4,
+            this.selectAllToolStripMenuItem});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.editToolStripMenuItem.Text = "&Edit";
+            // 
+            // undoToolStripMenuItem
+            // 
+            this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
+            this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
+            this.undoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.undoToolStripMenuItem.Text = "&Undo";
+            // 
+            // redoToolStripMenuItem
+            // 
+            this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
+            this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
+            this.redoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.redoToolStripMenuItem.Text = "&Redo";
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(141, 6);
+            // 
+            // cutToolStripMenuItem
+            // 
+            this.cutToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("cutToolStripMenuItem.Image")));
+            this.cutToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
+            this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
+            this.cutToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.cutToolStripMenuItem.Text = "Cu&t";
+            // 
+            // copyToolStripMenuItem
+            // 
+            this.copyToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("copyToolStripMenuItem.Image")));
+            this.copyToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
+            this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.copyToolStripMenuItem.Text = "&Copy";
+            // 
+            // pasteToolStripMenuItem
+            // 
+            this.pasteToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pasteToolStripMenuItem.Image")));
+            this.pasteToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
+            this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.pasteToolStripMenuItem.Text = "&Paste";
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(141, 6);
+            // 
+            // selectAllToolStripMenuItem
+            // 
+            this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.selectAllToolStripMenuItem.Text = "Select &All";
+            // 
+            // toolsToolStripMenuItem
+            // 
+            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.optionsToolStripMenuItem});
+            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsToolStripMenuItem.Text = "&Tools";
+            // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.optionsToolStripMenuItem.Text = "&Settings";
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "&Help";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.aboutToolStripMenuItem.Text = "&About...";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(542, 424);
-            this.Controls.Add(this.l_homeAlreadyEncrypted);
+            this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(541, 449);
+            this.Controls.Add(this.g_tabContainer);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.g_homeDirectory);
+            this.Controls.Add(this.m_menuBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MainMenuStrip = this.m_menuBar;
             this.Name = "MainWindow";
             this.Text = "Keenou";
             this.Load += new System.EventHandler(this.MainWindow_Load);
-            this.g_homeDirectory.ResumeLayout(false);
-            this.g_homeDirectory.PerformLayout();
             this.g_advanced.ResumeLayout(false);
             this.g_advanced.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.g_tabContainer.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
+            this.tabPage2.ResumeLayout(false);
+            this.g_PersonalFolderFlowLayout.ResumeLayout(false);
+            this.m_menuBar.ResumeLayout(false);
+            this.m_menuBar.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -409,11 +737,42 @@
         private System.Windows.Forms.Label l_volumeSize;
         public System.Windows.Forms.TextBox t_volumeSize;
         private System.Windows.Forms.Button b_setVolumeSize;
-        public System.Windows.Forms.GroupBox g_homeDirectory;
         public System.Windows.Forms.ToolStripStatusLabel l_statusLabel;
         public System.Windows.Forms.ToolStripProgressBar s_progress;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.Label l_homeAlreadyEncrypted;
+        private System.Windows.Forms.TabControl g_tabContainer;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.FlowLayoutPanel g_PersonalFolderFlowLayout;
+        private System.Windows.Forms.Panel g_personalFolderTemplate;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.MenuStrip m_menuBar;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem printToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem printPreviewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem redoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem selectAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newPersonalFolderToolStripMenuItem;
     }
 }
 
