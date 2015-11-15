@@ -392,8 +392,8 @@ namespace Keenou
             ab.ShowDialog();
         }
 
-        // User clicks "Add -> New Personal Folder" menu item
-        private void newPersonalFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        // User clicks "Add New Personal Folder" menu item
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AddPersonalFolder pf = new AddPersonalFolder();
             pf.ShowDialog();
