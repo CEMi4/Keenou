@@ -1,4 +1,23 @@
-﻿using System;
+﻿/*
+ * Keenou
+ * Copyright (C) 2015  Charles Munson
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+using System;
 using System.Windows.Forms;
 using System.Security.Principal;
 using System.IO;
@@ -211,6 +230,9 @@ namespace Keenou
 
 
             // Generate master key & protect with user password //
+            l_statusLabel.Text = "Generating encryption key ...";
+            Application.DoEvents();
+
             string masterKey = null;
             string encMasterKey = null;
             try
@@ -234,74 +256,124 @@ namespace Keenou
 
 
 
-            // Create new encrypted volume //
-            l_statusLabel.Text = "Creating encrypted volume ...";
-            Application.DoEvents();
-            res = EncryptHome.CreateEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey, cipherChosen, volSize);
-            if (res == null || !res.Success)
+
+            // Run work-heavy tasks in a separate thread 
+            CancellationTokenSource cts = new CancellationTokenSource();
+            CancellationToken cancelToken = cts.Token;
+            var workerThread = Task.Factory.StartNew(() =>
             {
-                ReportEncryptHomeError(res);
-                return;
-            }
-            // * //
+
+                // Update UI 
+                this.Invoke((MethodInvoker)delegate
+                {
+                    s_progress.Value = 25;
+                    l_statusLabel.Text = "Creating encrypted volume ...";
+                    Application.DoEvents();
+                    s_progress.ProgressBar.Refresh();
+                });
+
+                // Create new encrypted volume //
+                res = EncryptHome.CreateEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey, cipherChosen, volSize);
+                if (res == null || !res.Success)
+                {
+                    return res;
+                }
+                // * //
 
 
 
-            // Mount home folder's encrypted file as targetDrive //
-            s_progress.Value = 33;
-            l_statusLabel.Text = "Mounting encrypted volume ...";
-            Application.DoEvents();
-            s_progress.ProgressBar.Refresh();
-            res = EncryptHome.MountEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey);
-            if (res == null || !res.Success)
+                // Update UI 
+                this.Invoke((MethodInvoker)delegate
+                {
+                    s_progress.Value = 50;
+                    l_statusLabel.Text = "Mounting encrypted volume ...";
+                    Application.DoEvents();
+                    s_progress.ProgressBar.Refresh();
+                });
+
+                // Mount home folder's encrypted file as targetDrive //
+                res = EncryptHome.MountEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey);
+                if (res == null || !res.Success)
+                {
+                    return res;
+                }
+                // * //
+
+
+
+                // Update UI 
+                this.Invoke((MethodInvoker)delegate
+                {
+                    s_progress.Value = 75;
+                    l_statusLabel.Text = "Copying home directory to encrypted container ...";
+                    Application.DoEvents();
+                    s_progress.ProgressBar.Refresh();
+                });
+
+                // Copy everything over from home directory to encrypted container //
+                res = EncryptHome.CopyDataFromHomeFolder(this.homeFolder, targetDrive);
+                if (res == null || !res.Success)
+                {
+                    return res;
+                }
+                // * //
+
+
+
+                // TODO: Unmount encrypted volume (after beta testing over) 
+                // VeraCrypt should auto-unmount, but we'll do it manually to be sure 
+
+
+
+                return new BooleanResult() { Success = true };
+
+            }, TaskCreationOptions.LongRunning);
+
+
+
+            // When threaded tasks finish, check for errors and continue (if appropriate) 
+            workerThread.ContinueWith((antecedent) =>
             {
-                ReportEncryptHomeError(res);
-                return;
-            }
-            // * //
+                // Block until we get a result back from previous thread
+                BooleanResult result = antecedent.Result;
+
+
+                // Check if there was an error in previous thread
+                if (result == null || !result.Success)
+                {
+                    ReportEncryptHomeError(result);
+                    return;
+                }
 
 
 
-            // Copy everything over from home directory to encrypted container //
-            s_progress.Value = 66;
-            l_statusLabel.Text = "Copying home directory to encrypted container ...";
-            Application.DoEvents();
-            s_progress.ProgressBar.Refresh();
-            res = EncryptHome.CopyDataFromHomeFolder(this.homeFolder, targetDrive);
-            if (res == null || !res.Success)
-            {
-                ReportEncryptHomeError(res);
-                return;
-            }
-            // * //
+                // Set necessary registry values //
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encContainerLoc", t_volumeLoc.Text);
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "firstBoot", true, RegistryValueKind.DWord);
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "hash", hashChosen);
+                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encHeader", encMasterKey);
+                // * //
 
 
 
-            // TODO: Unmount encrypted volume (after beta testing over) 
-            // VeraCrypt should auto-unmount, but we'll do it manually to be sure 
+                // Re-enable everything //
+                this.Cursor = Cursors.Default;
+                l_statusLabel.Text = "Log out and back in to finish ...";
+                s_progress.Value = 100;
+                Application.DoEvents();
+                // * //
 
 
 
-            // Set necessary registry values //
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encContainerLoc", t_volumeLoc.Text);
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "firstBoot", true, RegistryValueKind.DWord);
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "hash", hashChosen);
-            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encHeader", encMasterKey);
-            // * //
+                // Inform user of the good news 
+                MessageBox.Show("Almost done!  You must log out and log back in via Keenou-pGina to finish the migration!");
 
+            },
+            cancelToken,
+            TaskContinuationOptions.OnlyOnRanToCompletion,
+            TaskScheduler.FromCurrentSynchronizationContext()
+            );
 
-
-            // Re-enable everything //
-            this.Cursor = Cursors.Default;
-            l_statusLabel.Text = "Log out and back in to finish ...";
-            s_progress.Value = 100;
-            Application.DoEvents();
-            // * //
-
-
-
-            // Inform user of the good news 
-            MessageBox.Show("Almost done!  You must log out and log back in via Keenou-pGina to finish the migration!");
         }
         // * //
 
@@ -349,15 +421,33 @@ namespace Keenou
             Application.DoEvents();
 
 
-            // Determine free space on enc volume target drive 
-            long targetSpace = Toolbox.GetAvailableFreeSpace(t_volumeLoc.Text);
-
-
             // Do calculation of current size (if not already done) 
             if (this.homeDirSize <= 0)
             {
-                this.homeDirSize = Toolbox.GetDirectorySize(this.homeFolder);
+                var taskA = Task.Factory.StartNew(() => Toolbox.GetDirectorySize(this.homeFolder), TaskCreationOptions.LongRunning);
+                CancellationTokenSource cts = new CancellationTokenSource();
+                CancellationToken cancelToken = cts.Token;
+
+                taskA.ContinueWith((antecedent) =>
+                {
+                    this.homeDirSize = antecedent.Result;
+                    this.b_setVolumeSize_Click_Callback();
+                },
+                cancelToken,
+                TaskContinuationOptions.OnlyOnRanToCompletion,
+                TaskScheduler.FromCurrentSynchronizationContext()
+                );
             }
+            else
+            {
+                this.b_setVolumeSize_Click_Callback();
+            }
+        }
+
+        private void b_setVolumeSize_Click_Callback()
+        {
+            // Determine free space on enc volume target drive 
+            long targetSpace = Toolbox.GetAvailableFreeSpace(t_volumeLoc.Text);
 
 
             // Show suggested volume size 
