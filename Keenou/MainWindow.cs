@@ -1,30 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Security.Principal;
 using System.IO;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
 using Microsoft.Win32;
-using System.Security.Cryptography;
 using System.Threading;
+using System.Threading.Tasks;
+using Org.BouncyCastle.Security;
+using System.Web.Security;
 
 namespace Keenou
 {
     public partial class MainWindow : Form
     {
-        const int CIPHER_C_DEFAULT = 0;
-        const int HASH_C_DEFAULT = 2;
-        const int VOLUME_SIZE_MULT_DEFAULT = 3;
+        // General random number generator instance 
+        private static readonly SecureRandom Random = new SecureRandom();
 
+        // Constants pre-defined 
+        const int MASTERKEY_PW_CHAR_COUNT = 100;        // Character count for master key password 
+        const int CIPHER_C_DEFAULT = 0;                 // Drop-down index for default cipher in UI 
+        const int HASH_C_DEFAULT = 2;                   // Drop-down index for default hash in UI 
+        const int VOLUME_SIZE_MULT_DEFAULT = 2;         // Suggest volume size should be this times larger than current est. home directory size 
+
+        // All possible ciphers and hashes supported
         protected string[] ciphers = { "AES", "Serpent", "Twofish", "AES(Twofish)", "AES(Twofish(Serpent))", "Serpent(AES)", "Serpent(Twofish(AES))", "Twofish(Serpent)" };
         protected string[] hashes = { "sha256", "sha512", "whirlpool", "ripemd160" };
 
+        // Various globals used throughout routines 
         protected string defaultVolumeLoc = string.Empty;
         protected string homeFolder = string.Empty;
         protected string username = string.Empty;
@@ -209,12 +210,34 @@ namespace Keenou
 
 
 
+            // Generate master key & protect with user password //
+            string masterKey = null;
+            string encMasterKey = null;
+            try
+            {
+                int nonAlphaChars = Math.Abs(Random.NextInt() % (MASTERKEY_PW_CHAR_COUNT + 1));
+                masterKey = Membership.GeneratePassword(MASTERKEY_PW_CHAR_COUNT, nonAlphaChars);
+                encMasterKey = AESGCM.SimpleEncryptWithPassword(masterKey, t_password.Text);
+
+                // Ensure we got good stuff back 
+                if (masterKey == null | encMasterKey == null)
+                {
+                    throw new Exception("Failed to obtain a master key or header!");
+                }
+            }
+            catch (Exception err)
+            {
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "ERROR: Cannot generate master key! " + err.Message });
+                return;
+            }
+            // * //
+
 
 
             // Create new encrypted volume //
             l_statusLabel.Text = "Creating encrypted volume ...";
             Application.DoEvents();
-            res = EncryptHome.CreateEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, Toolbox.SHA512_Base64(t_password.Text), cipherChosen, volSize);
+            res = EncryptHome.CreateEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey, cipherChosen, volSize);
             if (res == null || !res.Success)
             {
                 ReportEncryptHomeError(res);
@@ -229,7 +252,7 @@ namespace Keenou
             l_statusLabel.Text = "Mounting encrypted volume ...";
             Application.DoEvents();
             s_progress.ProgressBar.Refresh();
-            res = EncryptHome.MountEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, Toolbox.SHA512_Base64(t_password.Text));
+            res = EncryptHome.MountEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey);
             if (res == null || !res.Success)
             {
                 ReportEncryptHomeError(res);
@@ -263,6 +286,7 @@ namespace Keenou
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encContainerLoc", t_volumeLoc.Text);
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "firstBoot", true, RegistryValueKind.DWord);
             Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "hash", hashChosen);
+            Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encHeader", encMasterKey);
             // * //
 
 

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 using System.Threading;
 
 namespace Keenou
@@ -12,11 +8,8 @@ namespace Keenou
     public class EncryptHome
     {
 
-
-
-
         // Create new encrypted volume //
-        public static BooleanResult CreateEncryptedVolume(string hash, string volumeLoc, string targetDrive, string password, string cipherChosen, long volumeSize)
+        public static BooleanResult CreateEncryptedVolume(string hash, string volumeLoc, string targetDrive, string masterKey, string cipherChosen, long volumeSize)
         {
 
             using (Process process = new Process())
@@ -40,7 +33,7 @@ namespace Keenou
 
                     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"\"" + programDir + "VeraCrypt Format.exe\" /create \"" + volumeLoc + "\" /size " + volumeSize + "M /hash " + hash + " /encryption " + cipherChosen + " /password \"" + password + "\" /filesystem NTFS /force /dynamic /silent\"";
+                    startInfo.Arguments = "/C \"\"" + programDir + "VeraCrypt Format.exe\" /create \"" + volumeLoc + "\" /size " + volumeSize + "M /hash " + hash + " /encryption " + cipherChosen + " /password \"" + masterKey + "\" /filesystem NTFS /force /dynamic /silent\"";
                     process.StartInfo = startInfo;
                     process.Start();
                     process.WaitForExit(); // this does not work, since "VeraCrypt Format.exe" exits but child continues running 
@@ -72,7 +65,7 @@ namespace Keenou
 
 
         // Mount home folder's encrypted file as targetDrive //
-        public static BooleanResult MountEncryptedVolume(string hash, string volumeLoc, string targetDrive, string password)
+        public static BooleanResult MountEncryptedVolume(string hash, string volumeLoc, string targetDrive, string masterKey)
         {
 
             using (Process process = new Process())
@@ -94,7 +87,7 @@ namespace Keenou
                 {
                     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"\"" + programDir + "VeraCrypt.exe\" /hash " + hash + " /v \"" + volumeLoc + "\" /l " + targetDrive + " /f /h n /p \"" + password + "\" /q /s\"";
+                    startInfo.Arguments = "/C \"\"" + programDir + "VeraCrypt.exe\" /hash " + hash + " /v \"" + volumeLoc + "\" /l " + targetDrive + " /f /h n /p \"" + masterKey + "\" /q /s\"";
                     process.StartInfo = startInfo;
                     process.Start();
                     process.WaitForExit();
