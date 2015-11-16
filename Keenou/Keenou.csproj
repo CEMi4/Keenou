@@ -121,6 +121,7 @@
     </Compile>
     <Compile Include="BooleanResult.cs" />
     <Compile Include="EncryptDirectory.cs" />
+    <Compile Include="EncryptFS.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>

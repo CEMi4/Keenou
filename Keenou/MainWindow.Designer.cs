@@ -63,6 +63,7 @@
             this.g_PersonalFolderFlowLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.g_personalFolderTemplate = new System.Windows.Forms.Panel();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
             this.m_menuBar = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -88,13 +89,14 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.b_encryptCloud = new System.Windows.Forms.Button();
             this.g_advanced.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.g_tabContainer.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.g_PersonalFolderFlowLayout.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.m_menuBar.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -472,6 +474,17 @@
             this.tabPage3.Text = "Applications";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // tabPage4
+            // 
+            this.tabPage4.Controls.Add(this.b_encryptCloud);
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(510, 351);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "Cloud Services";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
             // m_menuBar
             // 
             this.m_menuBar.BackColor = System.Drawing.SystemColors.Control;
@@ -677,15 +690,15 @@
             this.aboutToolStripMenuItem.Text = "&About...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
-            // tabPage4
+            // b_encryptCloud
             // 
-            this.tabPage4.Location = new System.Drawing.Point(4, 22);
-            this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(510, 351);
-            this.tabPage4.TabIndex = 3;
-            this.tabPage4.Text = "Cloud Services";
-            this.tabPage4.UseVisualStyleBackColor = true;
+            this.b_encryptCloud.Location = new System.Drawing.Point(401, 292);
+            this.b_encryptCloud.Name = "b_encryptCloud";
+            this.b_encryptCloud.Size = new System.Drawing.Size(75, 23);
+            this.b_encryptCloud.TabIndex = 0;
+            this.b_encryptCloud.Text = "Encrypt";
+            this.b_encryptCloud.UseVisualStyleBackColor = true;
+            this.b_encryptCloud.Click += new System.EventHandler(this.b_encryptCloud_Click);
             // 
             // MainWindow
             // 
@@ -711,6 +724,7 @@
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.g_PersonalFolderFlowLayout.ResumeLayout(false);
+            this.tabPage4.ResumeLayout(false);
             this.m_menuBar.ResumeLayout(false);
             this.m_menuBar.PerformLayout();
             this.ResumeLayout(false);
@@ -780,6 +794,7 @@
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.Button b_encryptCloud;
     }
 }
 

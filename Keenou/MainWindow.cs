@@ -411,6 +411,42 @@ namespace Keenou
 
 
 
+        // When user hits "Encrypt" button for Cloud service //
+        private void b_encryptCloud_Click(object sender, EventArgs e)
+        {
+            BooleanResult res = EncryptFS.CreateEncryptedFS(@"C:\Users\jetwhiz\Desktop\encfs4win\", "Z:", "testing");
+            if (res == null || !res.Success)
+            {
+                MessageBox.Show(res.Message);
+                return;
+            }
+
+            MessageBox.Show("Created!");
+            Thread.Sleep(5000);
+
+            res = EncryptFS.MountEncryptedFS(@"C:\Users\jetwhiz\Desktop\encfs4win\", "Z:", "testing");
+            if (res == null || !res.Success)
+            {
+                MessageBox.Show(res.Message);
+                return;
+            }
+
+            MessageBox.Show("Mounted!");
+            Thread.Sleep(5000);
+
+            res = EncryptFS.UnmountEncryptedFS("Z:");
+            if (res == null || !res.Success)
+            {
+                MessageBox.Show(res.Message);
+                return;
+            }
+
+            MessageBox.Show("Unmounted!");
+        }
+        // * //
+
+
+
         // User wants us to suggest a volume size to them //
         private void b_setVolumeSize_Click(object sender, EventArgs e)
         {
