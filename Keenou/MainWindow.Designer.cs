@@ -88,6 +88,7 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
             this.g_advanced.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.g_tabContainer.SuspendLayout();
@@ -402,6 +403,7 @@
             this.g_tabContainer.Controls.Add(this.tabPage1);
             this.g_tabContainer.Controls.Add(this.tabPage2);
             this.g_tabContainer.Controls.Add(this.tabPage3);
+            this.g_tabContainer.Controls.Add(this.tabPage4);
             this.g_tabContainer.Location = new System.Drawing.Point(11, 37);
             this.g_tabContainer.Name = "g_tabContainer";
             this.g_tabContainer.SelectedIndex = 0;
@@ -675,6 +677,16 @@
             this.aboutToolStripMenuItem.Text = "&About...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
+            // tabPage4
+            // 
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(510, 351);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "Cloud Services";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -767,6 +779,7 @@
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.TabPage tabPage4;
     }
 }
 
