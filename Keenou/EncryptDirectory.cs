@@ -28,7 +28,7 @@ namespace Keenou
     {
 
         // Create new encrypted volume //
-        public static BooleanResult CreateEncryptedVolume(string hash, string volumeLoc, string targetDrive, string masterKey, string cipherChosen, long volumeSize)
+        public static BooleanResult CreateEncryptedVolume(string hash, string volumeLoc, string masterKey, string cipherChosen, long volumeSize)
         {
 
             using (Process process = new Process())
@@ -42,7 +42,7 @@ namespace Keenou
                 }
 
 
-                // MOUNT ENCRYPTED CONTAINER (TODO: sanitize password?)
+                // CREATE ENCRYPTED CONTAINER 
                 ProcessStartInfo startInfo = new ProcessStartInfo();
                 try
                 {
@@ -96,7 +96,7 @@ namespace Keenou
                 }
 
 
-                // MOUNT ENCRYPTED CONTAINER (TODO: sanitize password?)
+                // MOUNT ENCRYPTED CONTAINER 
                 ProcessStartInfo startInfo = new ProcessStartInfo();
                 try
                 {

@@ -273,7 +273,7 @@ namespace Keenou
                 });
 
                 // Create new encrypted volume //
-                res = EncryptDirectory.CreateEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey, cipherChosen, volSize);
+                res = EncryptDirectory.CreateEncryptedVolume(hashChosen, t_volumeLoc.Text, masterKey, cipherChosen, volSize);
                 if (res == null || !res.Success)
                 {
                     return res;
