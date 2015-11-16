@@ -120,7 +120,7 @@
       <DependentUpon>AddPersonalFolder.cs</DependentUpon>
     </Compile>
     <Compile Include="BooleanResult.cs" />
-    <Compile Include="EncryptHome.cs" />
+    <Compile Include="EncryptDirectory.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>

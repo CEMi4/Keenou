@@ -30,6 +30,38 @@ namespace Keenou
     static class Toolbox
     {
 
+        // Return path to software installation chosen //
+        public static string GetSoftwareDirectory(string type)
+        {
+            switch (type)
+            {
+                // Find VeraCrypt
+                case "VeraCrypt":
+
+                    // Prefer local installation over global one 
+                    string testLoc = Directory.GetCurrentDirectory() + @"\VeraCrypt\";
+                    if (Directory.Exists(testLoc))
+                    {
+                        return testLoc;
+                    }
+
+                    // As backup, try using global installation 
+                    testLoc = (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") ?? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) + @"\VeraCrypt\";
+                    if (Directory.Exists(testLoc))
+                    {
+                        return testLoc;
+                    }
+
+                    break;
+
+            }
+
+            return null;
+        }
+        // * //
+
+
+
         // Get SHA-512 signature from input text //
         public static string SHA512_Base64(string input)
         {

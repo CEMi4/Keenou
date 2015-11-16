@@ -273,7 +273,7 @@ namespace Keenou
                 });
 
                 // Create new encrypted volume //
-                res = EncryptHome.CreateEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey, cipherChosen, volSize);
+                res = EncryptDirectory.CreateEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey, cipherChosen, volSize);
                 if (res == null || !res.Success)
                 {
                     return res;
@@ -292,7 +292,7 @@ namespace Keenou
                 });
 
                 // Mount home folder's encrypted file as targetDrive //
-                res = EncryptHome.MountEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey);
+                res = EncryptDirectory.MountEncryptedVolume(hashChosen, t_volumeLoc.Text, targetDrive, masterKey);
                 if (res == null || !res.Success)
                 {
                     return res;
@@ -311,7 +311,7 @@ namespace Keenou
                 });
 
                 // Copy everything over from home directory to encrypted container //
-                res = EncryptHome.CopyDataFromHomeFolder(this.homeFolder, targetDrive);
+                res = EncryptDirectory.CopyDataFromHomeFolder(this.homeFolder, targetDrive);
                 if (res == null || !res.Success)
                 {
                     return res;

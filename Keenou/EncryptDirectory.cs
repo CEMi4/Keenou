@@ -24,7 +24,7 @@ using System.Threading;
 
 namespace Keenou
 {
-    public class EncryptHome
+    public class EncryptDirectory
     {
 
         // Create new encrypted volume //
@@ -35,10 +35,8 @@ namespace Keenou
             {
 
                 // GET VeraCrypt DIRECTORY
-                string programDir = (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") ?? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) + @"\VeraCrypt\";
-
-                // Make sure veracrypt is installed
-                if (!Directory.Exists(programDir))
+                string programDir = Toolbox.GetSoftwareDirectory("VeraCrypt");
+                if (programDir == null)
                 {
                     return new BooleanResult() { Success = false, Message = "ERROR: VeraCrypt inaccessible!" };
                 }
@@ -91,10 +89,8 @@ namespace Keenou
             {
 
                 // GET VeraCrypt DIRECTORY
-                string programDir = (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") ?? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) + @"\VeraCrypt\";
-
-                // Make sure veracrypt is installed
-                if (!Directory.Exists(programDir))
+                string programDir = Toolbox.GetSoftwareDirectory("VeraCrypt");
+                if (programDir == null)
                 {
                     return new BooleanResult() { Success = false, Message = "ERROR: VeraCrypt inaccessible!" };
                 }
@@ -172,6 +168,9 @@ namespace Keenou
             // * //
 
 
+            // TODO: ensure robocopy exists (Win 7+)
+
+
             using (Process process = new Process())
             {
 
@@ -205,7 +204,7 @@ namespace Keenou
 
 
 
-    } // End ThreadedProcess class 
+    } // End EncryptDirectory class 
 
     // End namespace 
 }
