@@ -90,10 +90,6 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.l_cloudVolumLoc = new System.Windows.Forms.Label();
-            this.t_cloudVolumLoc = new System.Windows.Forms.TextBox();
-            this.l_vanityName = new System.Windows.Forms.Label();
-            this.t_vanityName = new System.Windows.Forms.TextBox();
             this.g_advanced.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.g_tabContainer.SuspendLayout();
@@ -480,10 +476,6 @@
             // 
             // tabPage4
             // 
-            this.tabPage4.Controls.Add(this.l_vanityName);
-            this.tabPage4.Controls.Add(this.t_vanityName);
-            this.tabPage4.Controls.Add(this.l_cloudVolumLoc);
-            this.tabPage4.Controls.Add(this.t_cloudVolumLoc);
             this.tabPage4.Controls.Add(this.b_encryptCloud);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
@@ -501,11 +493,11 @@
             this.b_encryptCloud.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SteelBlue;
             this.b_encryptCloud.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.b_encryptCloud.ForeColor = System.Drawing.Color.White;
-            this.b_encryptCloud.Location = new System.Drawing.Point(405, 106);
+            this.b_encryptCloud.Location = new System.Drawing.Point(171, 42);
             this.b_encryptCloud.Name = "b_encryptCloud";
-            this.b_encryptCloud.Size = new System.Drawing.Size(75, 23);
+            this.b_encryptCloud.Size = new System.Drawing.Size(123, 23);
             this.b_encryptCloud.TabIndex = 0;
-            this.b_encryptCloud.Text = "Encrypt";
+            this.b_encryptCloud.Text = "Encrypt Dropbox";
             this.b_encryptCloud.UseVisualStyleBackColor = false;
             this.b_encryptCloud.Click += new System.EventHandler(this.b_encryptCloud_Click);
             // 
@@ -714,40 +706,6 @@
             this.aboutToolStripMenuItem.Text = "&About...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
-            // l_cloudVolumLoc
-            // 
-            this.l_cloudVolumLoc.AutoSize = true;
-            this.l_cloudVolumLoc.Location = new System.Drawing.Point(30, 79);
-            this.l_cloudVolumLoc.Name = "l_cloudVolumLoc";
-            this.l_cloudVolumLoc.Size = new System.Drawing.Size(85, 13);
-            this.l_cloudVolumLoc.TabIndex = 8;
-            this.l_cloudVolumLoc.Text = "Volume location:";
-            // 
-            // t_cloudVolumLoc
-            // 
-            this.t_cloudVolumLoc.BackColor = System.Drawing.Color.AliceBlue;
-            this.t_cloudVolumLoc.Location = new System.Drawing.Point(121, 76);
-            this.t_cloudVolumLoc.Name = "t_cloudVolumLoc";
-            this.t_cloudVolumLoc.Size = new System.Drawing.Size(268, 20);
-            this.t_cloudVolumLoc.TabIndex = 7;
-            // 
-            // l_vanityName
-            // 
-            this.l_vanityName.AutoSize = true;
-            this.l_vanityName.Location = new System.Drawing.Point(30, 46);
-            this.l_vanityName.Name = "l_vanityName";
-            this.l_vanityName.Size = new System.Drawing.Size(68, 13);
-            this.l_vanityName.TabIndex = 10;
-            this.l_vanityName.Text = "Vanity name:";
-            // 
-            // t_vanityName
-            // 
-            this.t_vanityName.BackColor = System.Drawing.Color.AliceBlue;
-            this.t_vanityName.Location = new System.Drawing.Point(121, 43);
-            this.t_vanityName.Name = "t_vanityName";
-            this.t_vanityName.Size = new System.Drawing.Size(268, 20);
-            this.t_vanityName.TabIndex = 9;
-            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -773,7 +731,6 @@
             this.tabPage2.ResumeLayout(false);
             this.g_PersonalFolderFlowLayout.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
-            this.tabPage4.PerformLayout();
             this.m_menuBar.ResumeLayout(false);
             this.m_menuBar.PerformLayout();
             this.ResumeLayout(false);
@@ -844,10 +801,6 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.TabPage tabPage4;
         private System.Windows.Forms.Button b_encryptCloud;
-        private System.Windows.Forms.Label l_cloudVolumLoc;
-        public System.Windows.Forms.TextBox t_cloudVolumLoc;
-        private System.Windows.Forms.Label l_vanityName;
-        public System.Windows.Forms.TextBox t_vanityName;
     }
 }
 

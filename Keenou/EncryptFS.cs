@@ -22,10 +22,24 @@ using System.Linq;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Win32;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Keenou
 {
+
+    /// <summary>
+    /// Helper class to access Dropbox's JSON configuration file 
+    /// </summary>
+    public class DropboxJSONItem
+    {
+        public long host;
+        public string path;
+    }
+    // * //
+
+
     class EncryptFS
     {
         private const string CONFIG_FILENAME = ".encfs6.xml";
@@ -33,8 +47,92 @@ namespace Keenou
         // ENCFS6_CONFIG environment variable to change config file location 
 
 
+
+        // Get folder path for cloud service //
+        public static string GetCloudServicePath(string type)
+        {
+            string folderPath = null;
+
+
+            switch (type)
+            {
+                case "Dropbox":
+                    string JSONpath = @"\Dropbox\info.json";
+
+
+                    // Find config file -- first type %APPDATA%, then %LOCALAPPDATA% 
+                    string configFilePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + JSONpath;
+                    if (!File.Exists(configFilePath))
+                    {
+                        configFilePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + JSONpath;
+                        if (!File.Exists(configFilePath))
+                        {
+                            return null;
+                        }
+                    }
+
+
+                    // Read and parse config file 
+                    string personalPath = null;
+                    string businessPath = null;
+                    using (StreamReader r = new StreamReader(configFilePath))
+                    {
+                        JObject search = JObject.Parse(r.ReadToEnd());
+                        IList<JToken> allAcctTypes = search.Children().ToList();
+
+                        foreach (JToken acctType in allAcctTypes)
+                        {
+                            foreach (JObject settings in acctType)
+                            {
+                                if (settings.Path == "personal")
+                                {
+                                    DropboxJSONItem res = JsonConvert.DeserializeObject<DropboxJSONItem>(settings.ToString());
+                                    personalPath = res.path;
+                                }
+                                if (settings.Path == "business")
+                                {
+                                    DropboxJSONItem res = JsonConvert.DeserializeObject<DropboxJSONItem>(settings.ToString());
+                                    businessPath = res.path;
+                                }
+                            }
+                        }
+
+                        // Only support personal folder for now 
+                        folderPath = personalPath;
+                    }
+
+
+                    break;
+            }
+
+            return folderPath;
+        }
+        // * //
+
+
+
+
+
+        // Change the parameters for this EncFS //
+        public static BooleanResult ChangeEncryptedFSParams(string guid, string volumeLoc)
+        {
+
+            // Update volume location (after migrating enc volume to cloud location, for instance) 
+            if (!string.IsNullOrEmpty(volumeLoc))
+            {
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encContainerLoc", volumeLoc);
+            }
+
+            return new BooleanResult() { Success = true };
+        }
+        // * //
+
+
+
+
+
         // Create new encrypted filesystem //
-        public static BooleanResult CreateEncryptedFS(string guid, string volumeLoc, string targetDrive, string masterKey, string label)
+        public static BooleanResult CreateEncryptedFS(string guid, string volumeLoc, string targetDrive, string masterKey, string label, bool keepMounted = false)
         {
 
             // Path cannot end with a slash due to CMD usage 
@@ -91,7 +189,7 @@ namespace Keenou
                     startInfo.UseShellExecute = false;
                     startInfo.FileName = "cmd.exe";
                     startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + CONFIG_FILENAME;
-                    startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + "\"\"";
+                    startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + ":\"\"";
                     process.StartInfo = startInfo;
                     process.Start();
 
@@ -112,10 +210,14 @@ namespace Keenou
                     // Unmount drive (forcing the closing of encfs process) if not already exited 
                     if (!process.HasExited)
                     {
-                        BooleanResult res = EncryptFS.UnmountEncryptedFS(targetDrive);
-                        if (res == null || !res.Success)
+                        // Auto-unmount unless they asked us not to 
+                        if (!keepMounted)
                         {
-                            return res;
+                            BooleanResult res = EncryptFS.UnmountEncryptedFS(targetDrive);
+                            if (res == null || !res.Success)
+                            {
+                                return res;
+                            }
                         }
                     }
                     else
@@ -125,8 +227,8 @@ namespace Keenou
                     }
 
 
-                    // Wait for EncFS to die 
-                    process.WaitForExit();
+                    // Process will block indefinitely (until unmount called), so just return 
+                    //process.WaitForExit();
                 }
                 catch (Exception err)
                 {
@@ -200,7 +302,7 @@ namespace Keenou
                     startInfo.UseShellExecute = false;
                     startInfo.FileName = "cmd.exe";
                     startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + CONFIG_FILENAME;
-                    startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + "\"\"";
+                    startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + ":\"\"";
                     process.StartInfo = startInfo;
                     process.Start();
 
@@ -268,7 +370,7 @@ namespace Keenou
                     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startInfo.CreateNoWindow = true;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"\"" + programDir + "dokanctl.exe\"  /u \"" + targetDrive + "\"\"";
+                    startInfo.Arguments = "/C \"\"" + programDir + "dokanctl.exe\"  /u \"" + targetDrive + ":\"\"";
                     process.StartInfo = startInfo;
                     process.Start();
 
@@ -285,6 +387,73 @@ namespace Keenou
         }
         // * //
 
+
+
+
+
+        // Copy files over from old folder to new, enc folder //
+        public static BooleanResult CopyDataFromFolder(string sourceFolder, string targetDrive, string encDriveLoc)
+        {
+
+            // Make sure old location exists (before moving files over to new location) 
+            if (!Directory.Exists(sourceFolder))
+            {
+                return new BooleanResult() { Success = false, Message = "ERROR: Source directory inaccessible!" };
+            }
+            // * //
+
+
+
+            using (Process process = new Process())
+            {
+
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                try
+                {
+                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    startInfo.FileName = "cmd.exe";
+                    startInfo.Arguments = "/C \"xcopy /E /Q /G /H /exclude:CloudExcludes.txt \"" + sourceFolder + "\" " + targetDrive + ":\\\"";
+                    process.StartInfo = startInfo;
+                    process.Start(); // this may take a while! 
+                    process.WaitForExit();
+
+                    // Ensure no errors were thrown 
+                    if (process.ExitCode > 0)
+                    {
+                        return new BooleanResult() { Success = false, Message = "ERROR: Error while copying files over!" };
+                    }
+
+                }
+                catch (Exception err)
+                {
+                    return new BooleanResult() { Success = false, Message = "ERROR: Failed to finish moving cloud volume. " + err.Message };
+                }
+            }
+
+
+            // Copy over excluded files directly to encrypted folder (cloud config files) 
+            StreamReader file = new StreamReader("CloudExcludes.txt");
+            string line;
+            while ((line = file.ReadLine()) != null)
+            {
+                IEnumerable<string> sfiles = Directory.EnumerateFiles(sourceFolder, line, SearchOption.AllDirectories);
+                foreach (string sfile in sfiles)
+                {
+                    int lastSlash = sfile.LastIndexOf('\\');
+                    if (lastSlash >= 0)
+                    {
+                        string filename = sfile.Substring(lastSlash);
+                        string relPath = sfile.Substring(0, lastSlash);
+                        relPath = relPath.Replace(sourceFolder, "");
+                        File.Copy(sfile, encDriveLoc + relPath + filename, false);
+                    }
+                }
+            }
+
+
+            return new BooleanResult() { Success = true };
+        }
+        // * //
 
 
     } // End EncryptFS class 

@@ -400,73 +400,141 @@ namespace Keenou
 
 
         // When user hits "Encrypt" button for Cloud service //
+        private void ReportEncryptCloudError(BooleanResult res)
+        {
+            if (res.Message != null)
+            {
+                MessageBox.Show(res.Message);
+            }
+
+            // Reset state of window, and display error conditions 
+            this.Cursor = Cursors.Default;
+            g_tabContainer.Controls[1].Enabled = true;
+            l_statusLabel.Text = "ERROR";
+            s_progress.Value = 0;
+            s_progress.Visible = false;
+        }
         private void b_encryptCloud_Click(object sender, EventArgs e)
         {
-
-            // Determine desired volume location 
-            string volumeLoc = t_cloudVolumLoc.Text;
-
-
 
             // GET NEXT FREE DRIVE LETTER 
             string targetDrive = Toolbox.GetNextFreeDriveLetter();
             if (targetDrive == null)
             {
-                MessageBox.Show("ERROR: Cannot find a free drive letter!");
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot find a free drive letter!" });
                 return;
             }
-            targetDrive += ":"; // must end with a colon 
             // * //
-
 
 
             // Generate a new GUID to identify this FS
             string guid = Guid.NewGuid().ToString();
 
 
-            // Save vanity name if they want one 
-            if (!string.IsNullOrWhiteSpace(t_vanityName.Text))
+
+            BooleanResult res = null;
+            string type = "Dropbox";
+
+            // Figure out where the cloud's folder is on this computer 
+            string cloudPath = EncryptFS.GetCloudServicePath(type);
+            if (cloudPath == null)
             {
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "vanityName", t_vanityName.Text);
-            }
-
-
-
-            // CREATE
-            BooleanResult res = EncryptFS.CreateEncryptedFS(guid, volumeLoc, targetDrive, "testing", "Create");
-            if (res == null || !res.Success)
-            {
-                MessageBox.Show(res.Message);
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot find folder path for cloud service " + type });
                 return;
             }
 
-            MessageBox.Show("Created!");
-            Thread.Sleep(5000);
 
 
-            // MOUNT
-            res = EncryptFS.MountEncryptedFS(guid, targetDrive, "testing", t_vanityName.Text);
+            // Generate temporary location to hold enc data
+            string tempFolderName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + Path.GetRandomFileName());
+            Directory.CreateDirectory(tempFolderName);
+            l_statusLabel.Text = "Temp folder: " + tempFolderName;
+
+
+            // Create new EncFS
+            l_statusLabel.Text = "Creating EncFS drive";
+            res = EncryptFS.CreateEncryptedFS(guid, tempFolderName, targetDrive, "temporary", "Secure " + type, true);
             if (res == null || !res.Success)
             {
-                MessageBox.Show(res.Message);
+                ReportEncryptCloudError(res);
                 return;
             }
 
-            MessageBox.Show("Mounted!");
-            Thread.Sleep(5000);
+
+            // Copy cloud data over 
+            l_statusLabel.Text = "Copying data from Cloud folder to encrypted drive";
+            res = EncryptFS.CopyDataFromFolder(cloudPath, targetDrive, tempFolderName);
+            if (res == null || !res.Success)
+            {
+                ReportEncryptCloudError(res);
+                return;
+            }
 
 
-            // UNMOUNT
+            // Unmount encrypted folder (prepare to move it) 
             res = EncryptFS.UnmountEncryptedFS(targetDrive);
             if (res == null || !res.Success)
             {
-                MessageBox.Show(res.Message);
+                ReportEncryptCloudError(res);
                 return;
             }
 
-            MessageBox.Show("Unmounted!");
+
+            // TODO: RENAME (FOR NOW) CLOUD FOLDER TO XXXX.BACKUP -- switch to remove after beta 
+            try
+            {
+                Directory.Move(cloudPath, cloudPath + ".backup-" + Path.GetRandomFileName());
+            }
+            catch (Exception err)
+            {
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot remove old Cloud folder, maybe syncing was not pause or a file is in use? " + err.Message });
+                return;
+            }
 
 
+            // Move the encrypted cloud folder to the old cloud path (Cloud provider should re-sync with encrypted files) 
+            try
+            {
+                Directory.Move(tempFolderName, cloudPath);
+            }
+            catch (Exception err)
+            {
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot move Cloud folder, maybe syncing was not pause or a file is in use? " + err.Message });
+                return;
+            }
+
+
+            // Update the location of the encrypted volume (was temp, now is the cloud path) 
+            res = EncryptFS.ChangeEncryptedFSParams(guid, cloudPath);
+            if (res == null || !res.Success)
+            {
+                ReportEncryptCloudError(res);
+                return;
+            }
+
+
+
+            // TODO: Recover from errors along the way 
+
+
+            
+            // GET A NEW FREE DRIVE LETTER 
+            targetDrive = Toolbox.GetNextFreeDriveLetter();
+            if (targetDrive == null)
+            {
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot find a free drive letter!" });
+                return;
+            }
+            // * //
+
+
+            // Mount their freshly-created encrypted drive 
+            res = EncryptFS.MountEncryptedFS(guid, targetDrive, "temporary", "Secure " + type);
+            if (res == null || !res.Success)
+            {
+                ReportEncryptCloudError(res);
+                return;
+            }
 
         }
         // * //
