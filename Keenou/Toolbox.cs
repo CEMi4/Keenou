@@ -30,6 +30,30 @@ namespace Keenou
     static class Toolbox
     {
 
+
+        // Get next free logical drive letter //
+        public static string GetNextFreeDriveLetter()
+        {
+            string targetDrive = null;
+
+            char[] alpha = "VTHEDFGIJKLMNOPQRSUWXYZC".ToCharArray();
+            string[] taken = Directory.GetLogicalDrives();
+            foreach (char dL in alpha)
+            {
+                int pos = Array.IndexOf(taken, dL + @":\");
+                if (pos == -1)
+                {
+                    targetDrive = dL.ToString();
+                    break;
+                }
+            }
+
+            return targetDrive;
+        }
+        // * //
+
+
+
         // Return path to software installation chosen //
         public static string GetSoftwareDirectory(string type)
         {

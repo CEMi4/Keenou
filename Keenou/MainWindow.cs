@@ -207,19 +207,7 @@ namespace Keenou
 
 
             // GET NEXT FREE DRIVE LETTER 
-            string targetDrive = null;
-
-            char[] alpha = "VTHEDFGIJKLMNOPQRSUWXYZC".ToCharArray();
-            string[] taken = Directory.GetLogicalDrives();
-            foreach (char dL in alpha)
-            {
-                int pos = Array.IndexOf(taken, dL + @":\");
-                if (pos == -1)
-                {
-                    targetDrive = dL.ToString();
-                    break;
-                }
-            }
+            string targetDrive = Toolbox.GetNextFreeDriveLetter();
             if (targetDrive == null)
             {
                 ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "ERROR: Cannot find a free drive letter!" });
@@ -414,7 +402,38 @@ namespace Keenou
         // When user hits "Encrypt" button for Cloud service //
         private void b_encryptCloud_Click(object sender, EventArgs e)
         {
-            BooleanResult res = EncryptFS.CreateEncryptedFS(@"C:\Users\jetwhiz\Desktop\encfs4win\", "Z:", "testing");
+
+            // Determine desired volume location 
+            string volumeLoc = t_cloudVolumLoc.Text;
+
+
+
+            // GET NEXT FREE DRIVE LETTER 
+            string targetDrive = Toolbox.GetNextFreeDriveLetter();
+            if (targetDrive == null)
+            {
+                MessageBox.Show("ERROR: Cannot find a free drive letter!");
+                return;
+            }
+            targetDrive += ":"; // must end with a colon 
+            // * //
+
+
+
+            // Generate a new GUID to identify this FS
+            string guid = Guid.NewGuid().ToString();
+
+
+            // Save vanity name if they want one 
+            if (!string.IsNullOrWhiteSpace(t_vanityName.Text))
+            {
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "vanityName", t_vanityName.Text);
+            }
+
+
+
+            // CREATE
+            BooleanResult res = EncryptFS.CreateEncryptedFS(guid, volumeLoc, targetDrive, "testing", "Create");
             if (res == null || !res.Success)
             {
                 MessageBox.Show(res.Message);
@@ -424,7 +443,9 @@ namespace Keenou
             MessageBox.Show("Created!");
             Thread.Sleep(5000);
 
-            res = EncryptFS.MountEncryptedFS(@"C:\Users\jetwhiz\Desktop\encfs4win\", "Z:", "testing");
+
+            // MOUNT
+            res = EncryptFS.MountEncryptedFS(guid, targetDrive, "testing", t_vanityName.Text);
             if (res == null || !res.Success)
             {
                 MessageBox.Show(res.Message);
@@ -434,7 +455,9 @@ namespace Keenou
             MessageBox.Show("Mounted!");
             Thread.Sleep(5000);
 
-            res = EncryptFS.UnmountEncryptedFS("Z:");
+
+            // UNMOUNT
+            res = EncryptFS.UnmountEncryptedFS(targetDrive);
             if (res == null || !res.Success)
             {
                 MessageBox.Show(res.Message);
@@ -442,6 +465,9 @@ namespace Keenou
             }
 
             MessageBox.Show("Unmounted!");
+
+
+
         }
         // * //
 

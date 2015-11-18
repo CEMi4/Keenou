@@ -18,50 +18,66 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
-using System.Windows.Forms;
 using System.Diagnostics;
-using System.Threading;
+using Microsoft.Win32;
 using System.Runtime.InteropServices;
 
 namespace Keenou
 {
     class EncryptFS
     {
+        private const string CONFIG_FILENAME = ".encfs6.xml";
+
         // ENCFS6_CONFIG environment variable to change config file location 
 
 
-
         // Create new encrypted filesystem //
-        public static BooleanResult CreateEncryptedFS(string volumeLoc, string targetDrive, string masterKey)
+        public static BooleanResult CreateEncryptedFS(string guid, string volumeLoc, string targetDrive, string masterKey, string label)
         {
 
             // Path cannot end with a slash due to CMD usage 
             volumeLoc = volumeLoc.TrimEnd(new[] { '/', '\\' });
 
 
+            // GET EncFS DIRECTORY
+            string programDir = Toolbox.GetSoftwareDirectory("EncFS");
+            if (programDir == null)
+            {
+                return new BooleanResult() { Success = false, Message = "ERROR: EncFS inaccessible!" };
+            }
+
+
+            // GET Dokan DIRECTORY
+            string dokanDir = Toolbox.GetSoftwareDirectory("Dokan");
+            if (dokanDir == null)
+            {
+                return new BooleanResult() { Success = false, Message = "ERROR: Dokan inaccessible!" };
+            }
+
+
+
+            // Determine Keenou config file location for this volume 
+            string configLoc = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData) + @"\Keenou\" + guid + @"\";
+            if (Directory.Exists(configLoc))
+            {
+                // TODO: auto-recovery? 
+                return new BooleanResult() { Success = false, Message = "ERROR: Possible GUID collision!" };
+            }
+
+
+            // Create config file directory for this FS
+            Directory.CreateDirectory(configLoc);
+
+
+            // Save setting values to registry  
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encContainerLoc", volumeLoc);
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "configLoc", configLoc);
+
+
             using (Process process = new Process())
             {
-
-                // GET EncFS DIRECTORY
-                string programDir = Toolbox.GetSoftwareDirectory("EncFS");
-                if (programDir == null)
-                {
-                    return new BooleanResult() { Success = false, Message = "ERROR: EncFS inaccessible!" };
-                }
-
-
-                // GET Dokan DIRECTORY
-                string dokanDir = Toolbox.GetSoftwareDirectory("Dokan");
-                if (dokanDir == null)
-                {
-                    return new BooleanResult() { Success = false, Message = "ERROR: Dokan inaccessible!" };
-                }
-
-
 
                 // MOUNT ENCRYPTED CONTAINER 
                 ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -74,7 +90,8 @@ namespace Keenou
                     startInfo.RedirectStandardInput = true;
                     startInfo.UseShellExecute = false;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"Secure Dropbox\" \"" + volumeLoc + "\" \"" + targetDrive + "\"\"";
+                    startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + CONFIG_FILENAME;
+                    startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + "\"\"";
                     process.StartInfo = startInfo;
                     process.Start();
 
@@ -127,11 +144,28 @@ namespace Keenou
 
 
         // Mount encrypted filesystem //
-        public static BooleanResult MountEncryptedFS(string volumeLoc, string targetDrive, string masterKey)
+        public static BooleanResult MountEncryptedFS(string guid, string targetDrive, string masterKey, string label)
         {
+
+            // Determine location of configuration file 
+            string configLoc = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "configLoc", string.Empty);
+            if (string.IsNullOrEmpty(configLoc))
+            {
+                return new BooleanResult() { Success = false, Message = "ERROR: Invalid GUID given to mount!" };
+            }
+
+
+            // Pull enc volume location from registry for this GUID 
+            string volumeLoc = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encContainerLoc", string.Empty);
+            if (string.IsNullOrEmpty(volumeLoc))
+            {
+                return new BooleanResult() { Success = false, Message = "ERROR: Invalid GUID given to mount!" };
+            }
 
             // Path cannot end with a slash due to CMD usage 
             volumeLoc = volumeLoc.TrimEnd(new[] { '/', '\\' });
+
+
 
 
             using (Process process = new Process())
@@ -165,7 +199,8 @@ namespace Keenou
                     startInfo.RedirectStandardInput = true;
                     startInfo.UseShellExecute = false;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"Secure Dropbox\" \"" + volumeLoc + "\" \"" + targetDrive + "\"\"";
+                    startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + CONFIG_FILENAME;
+                    startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + "\"\"";
                     process.StartInfo = startInfo;
                     process.Start();
 
@@ -198,6 +233,7 @@ namespace Keenou
                 }
 
             }
+
 
             return new BooleanResult() { Success = true };
         }
