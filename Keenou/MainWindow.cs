@@ -406,6 +406,15 @@ namespace Keenou
         }
         private void b_encryptCloud_Click(object sender, EventArgs e)
         {
+            // Sanity checks //
+            if (t_cloudPW.Text.Length <= 0 || !string.Equals(t_cloudPW.Text, t_cloudPWConf.Text))
+            {
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "Passwords provided must match and be non-zero in length!" });
+                return;
+            }
+            // * //
+
+
 
             // GET NEXT FREE DRIVE LETTER 
             string targetDrive = Toolbox.GetNextFreeDriveLetter();
@@ -446,10 +455,9 @@ namespace Keenou
 
             // Generate master key & protect with user password //
             l_statusLabel.Text = "Generating encryption key ...";
-            string password = "temporary";
 
             string masterKey = Toolbox.GenerateKey(MASTERKEY_PW_CHAR_COUNT);
-            string encMasterKey = Toolbox.PasswordEncryptKey(masterKey, password);
+            string encMasterKey = Toolbox.PasswordEncryptKey(masterKey, t_cloudPW.Text);
 
             // Ensure we got good stuff back 
             if (masterKey == null || encMasterKey == null)
@@ -570,6 +578,149 @@ namespace Keenou
             s_progress.Value = 0;
             s_progress.Visible = false;
             Application.DoEvents();
+            // * //
+
+        }
+
+        private void b_mountDropbox_Click(object sender, EventArgs e)
+        {
+
+            // GET NEXT FREE DRIVE LETTER 
+            string targetDrive = Toolbox.GetNextFreeDriveLetter();
+            if (targetDrive == null)
+            {
+                MessageBox.Show("ERROR: Cannot find a free drive letter!");
+                return;
+            }
+            // * //
+
+
+            BooleanResult res = null;
+
+
+
+            // Figure out where the cloud's folder is on this computer 
+            string type = clouds[0];
+            string cloudPath = EncryptFS.GetCloudServicePath(type);
+            if (cloudPath == null)
+            {
+                MessageBox.Show("ERROR: Cannot find folder path for cloud service " + type);
+                return;
+            }
+            // * //
+
+
+
+            // Find guid of desired cloud folder //
+            string guid = null;
+            RegistryKey OurKey = Registry.CurrentUser;
+            OurKey = OurKey.OpenSubKey(@"Software\Keenou");
+            foreach (string Keyname in OurKey.GetSubKeyNames())
+            {
+                RegistryKey key = OurKey.OpenSubKey(Keyname);
+                if (key.GetValue("encContainerLoc").ToString() == cloudPath)
+                {
+                    guid = Keyname.ToString();
+                }
+            }
+            if (guid == null)
+            {
+                MessageBox.Show("Cannot find encrypted cloud folder!");
+                return;
+            }
+            // * //
+
+
+
+            // Get and decrypt user's master key (using user password) //
+            string masterKey = null;
+            string encHeader = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encHeader", null);
+            if (string.IsNullOrEmpty(encHeader))
+            {
+                MessageBox.Show("User's header information could not be found.");
+                return;
+            }
+
+            masterKey = Toolbox.PasswordDecryptKey(encHeader, this.t_mountDropboxPW.Text);
+
+            // Make sure we got a key back 
+            if (masterKey == null)
+            {
+                MessageBox.Show("Failed to decrypt master key!");
+                return;
+            }
+            // * //
+
+
+
+            // Mount their freshly-created encrypted drive 
+            res = EncryptFS.MountEncryptedFS(guid, targetDrive, masterKey, "Secure " + type);
+            if (res == null || !res.Success)
+            {
+                MessageBox.Show(res.Message);
+                return;
+            }
+            // * //
+
+
+        }
+
+        private void b_unmountDropbox_Click(object sender, EventArgs e)
+        {
+
+            BooleanResult res = null;
+
+
+
+            // Figure out where the cloud's folder is on this computer 
+            string type = clouds[0];
+            string cloudPath = EncryptFS.GetCloudServicePath(type);
+            if (cloudPath == null)
+            {
+                MessageBox.Show("ERROR: Cannot find folder path for cloud service " + type);
+                return;
+            }
+            // * //
+
+
+
+            // Find guid of desired cloud folder //
+            string guid = null;
+            RegistryKey OurKey = Registry.CurrentUser;
+            OurKey = OurKey.OpenSubKey(@"Software\Keenou");
+            foreach (string Keyname in OurKey.GetSubKeyNames())
+            {
+                RegistryKey key = OurKey.OpenSubKey(Keyname);
+                if (key.GetValue("encContainerLoc").ToString() == cloudPath)
+                {
+                    guid = Keyname.ToString();
+                }
+            }
+            if (guid == null)
+            {
+                MessageBox.Show("Cannot find encrypted cloud folder!");
+                return;
+            }
+            // * //
+
+
+            // Determine where this cloud is mounted to //
+            string targetDrive = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encDrive", null);
+            if (string.IsNullOrEmpty(targetDrive))
+            {
+                MessageBox.Show("Target drive not found!  Is cloud mounted?");
+                return;
+            }
+            // * //
+
+
+            // Unmount encrypted drive 
+            res = EncryptFS.UnmountEncryptedFS(targetDrive);
+            if (res == null || !res.Success)
+            {
+                MessageBox.Show(res.Message);
+                return;
+            }
             // * //
 
         }

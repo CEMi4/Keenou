@@ -220,6 +220,11 @@ namespace Keenou
                                 return res;
                             }
                         }
+                        else
+                        {
+                            // Save where we mounted the encrypted volume 
+                            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encDrive", targetDrive);
+                        }
                     }
                     else
                     {
@@ -325,6 +330,10 @@ namespace Keenou
                     {
                         return new BooleanResult() { Success = false, Message = "ERROR: Error while mounting encrypted FS! " + process.ExitCode };
                     }
+
+
+                    // Save where we mounted the encrypted volume 
+                    Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encDrive", targetDrive);
 
 
                     // Process will block indefinitely (until unmount called), so just return 
