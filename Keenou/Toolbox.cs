@@ -24,11 +24,16 @@ using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Security.Cryptography;
+using System.Web.Security;
+using Org.BouncyCastle.Security;
 
 namespace Keenou
 {
     static class Toolbox
     {
+        // General random number generator instance 
+        private static readonly SecureRandom Random = new SecureRandom();
+        public static readonly string KeenouProgramDirectory = (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") ?? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) + @"\Keenou\";
 
 
         // Get next free logical drive letter //
@@ -54,6 +59,85 @@ namespace Keenou
 
 
 
+        // Protect key with user password (encrypt/decrypt) //
+        public static string PasswordEncryptKey(string key, string password)
+        {
+            string encMasterKey = null;
+
+            try
+            {
+                // Encrypt key with user's password 
+                encMasterKey = AESGCM.SimpleEncryptWithPassword(key, password);
+
+                // Ensure we got good stuff back 
+                if (encMasterKey == null)
+                {
+                    throw new Exception("Failed to encrypt key with password!");
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return encMasterKey;
+        }
+        public static string PasswordDecryptKey(string encMasterKey, string password)
+        {
+            string key = null;
+
+            try
+            {
+                // Decrypt key with user's password 
+                key = AESGCM.SimpleDecryptWithPassword(encMasterKey, password);
+
+                // Ensure we got good stuff back 
+                if (key == null)
+                {
+                    throw new Exception("Failed to decrypt key with password!");
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return key;
+        }
+        // * //
+
+
+
+        // Generate a strong encryption key, optionally protect with user password //
+        public static string GenerateKey(int length)
+        {
+            string masterKey = null;
+
+            try
+            {
+                // We want a random number of non-alphanumeric characters to be included 
+                int nonAlphaCharCnt = Math.Abs(Random.NextInt() % (length + 1));
+
+                // Generate password 
+                masterKey = Membership.GeneratePassword(length, nonAlphaCharCnt);
+
+                // Ensure we got good stuff back 
+                if (masterKey == null)
+                {
+                    throw new Exception("Failed to obtain a master key or header!");
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return masterKey;
+        }
+        // * //
+
+
+
         // Return path to software installation chosen //
         public static string GetSoftwareDirectory(string type)
         {
@@ -65,7 +149,7 @@ namespace Keenou
                 case "VeraCrypt":
 
                     // Prefer local installation over global one 
-                    testLoc = Directory.GetCurrentDirectory() + @"\VeraCrypt\";
+                    testLoc = KeenouProgramDirectory + @"\VeraCrypt\";
                     if (Directory.Exists(testLoc))
                     {
                         return testLoc;
@@ -85,7 +169,7 @@ namespace Keenou
                 case "EncFS":
 
                     // Prefer local installation over global one 
-                    testLoc = Directory.GetCurrentDirectory() + @"\EncFS\";
+                    testLoc = KeenouProgramDirectory + @"\EncFS\";
                     if (Directory.Exists(testLoc))
                     {
                         return testLoc;

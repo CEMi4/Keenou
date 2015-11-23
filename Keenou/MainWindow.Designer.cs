@@ -59,12 +59,12 @@
             this.l_homeAlreadyEncrypted = new System.Windows.Forms.Label();
             this.g_tabContainer = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.b_encryptCloud = new System.Windows.Forms.Button();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.g_PersonalFolderFlowLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.g_personalFolderTemplate = new System.Windows.Forms.Panel();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.b_encryptCloud = new System.Windows.Forms.Button();
             this.m_menuBar = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,9 +94,9 @@
             this.statusStrip1.SuspendLayout();
             this.g_tabContainer.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.g_PersonalFolderFlowLayout.SuspendLayout();
-            this.tabPage4.SuspendLayout();
             this.m_menuBar.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -439,41 +439,6 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Home Folder";
             // 
-            // tabPage2
-            // 
-            this.tabPage2.Controls.Add(this.g_PersonalFolderFlowLayout);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(510, 351);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Personal Folders";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // g_PersonalFolderFlowLayout
-            // 
-            this.g_PersonalFolderFlowLayout.Controls.Add(this.g_personalFolderTemplate);
-            this.g_PersonalFolderFlowLayout.Location = new System.Drawing.Point(3, 3);
-            this.g_PersonalFolderFlowLayout.Name = "g_PersonalFolderFlowLayout";
-            this.g_PersonalFolderFlowLayout.Size = new System.Drawing.Size(501, 345);
-            this.g_PersonalFolderFlowLayout.TabIndex = 0;
-            // 
-            // g_personalFolderTemplate
-            // 
-            this.g_personalFolderTemplate.Location = new System.Drawing.Point(3, 3);
-            this.g_personalFolderTemplate.Name = "g_personalFolderTemplate";
-            this.g_personalFolderTemplate.Size = new System.Drawing.Size(499, 110);
-            this.g_personalFolderTemplate.TabIndex = 0;
-            // 
-            // tabPage3
-            // 
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(510, 351);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Applications";
-            this.tabPage3.UseVisualStyleBackColor = true;
-            // 
             // tabPage4
             // 
             this.tabPage4.Controls.Add(this.b_encryptCloud);
@@ -500,6 +465,41 @@
             this.b_encryptCloud.Text = "Encrypt Dropbox";
             this.b_encryptCloud.UseVisualStyleBackColor = false;
             this.b_encryptCloud.Click += new System.EventHandler(this.b_encryptCloud_Click);
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(510, 351);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Applications";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.g_PersonalFolderFlowLayout);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(510, 351);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Personal Folders";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // g_PersonalFolderFlowLayout
+            // 
+            this.g_PersonalFolderFlowLayout.Controls.Add(this.g_personalFolderTemplate);
+            this.g_PersonalFolderFlowLayout.Location = new System.Drawing.Point(3, 3);
+            this.g_PersonalFolderFlowLayout.Name = "g_PersonalFolderFlowLayout";
+            this.g_PersonalFolderFlowLayout.Size = new System.Drawing.Size(501, 345);
+            this.g_PersonalFolderFlowLayout.TabIndex = 0;
+            // 
+            // g_personalFolderTemplate
+            // 
+            this.g_personalFolderTemplate.Location = new System.Drawing.Point(3, 3);
+            this.g_personalFolderTemplate.Name = "g_personalFolderTemplate";
+            this.g_personalFolderTemplate.Size = new System.Drawing.Size(499, 110);
+            this.g_personalFolderTemplate.TabIndex = 0;
             // 
             // m_menuBar
             // 
@@ -728,9 +728,9 @@
             this.g_tabContainer.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            this.tabPage4.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.g_PersonalFolderFlowLayout.ResumeLayout(false);
-            this.tabPage4.ResumeLayout(false);
             this.m_menuBar.ResumeLayout(false);
             this.m_menuBar.PerformLayout();
             this.ResumeLayout(false);

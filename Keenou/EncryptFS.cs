@@ -25,6 +25,7 @@ using Microsoft.Win32;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Windows.Forms;
 
 namespace Keenou
 {
@@ -42,7 +43,7 @@ namespace Keenou
 
     class EncryptFS
     {
-        private const string CONFIG_FILENAME = ".encfs6.xml";
+        private const string ENCFS_CONFIG_FILENAME = ".encfs6.xml";
 
         // ENCFS6_CONFIG environment variable to change config file location 
 
@@ -188,7 +189,7 @@ namespace Keenou
                     startInfo.RedirectStandardInput = true;
                     startInfo.UseShellExecute = false;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + CONFIG_FILENAME;
+                    startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + ENCFS_CONFIG_FILENAME;
                     startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + ":\"\"";
                     process.StartInfo = startInfo;
                     process.Start();
@@ -301,8 +302,8 @@ namespace Keenou
                     startInfo.RedirectStandardInput = true;
                     startInfo.UseShellExecute = false;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + CONFIG_FILENAME;
-                    startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + ":\"\"";
+                    startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + ENCFS_CONFIG_FILENAME;
+                    startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --require-macs --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + ":\"\"";
                     process.StartInfo = startInfo;
                     process.Start();
 

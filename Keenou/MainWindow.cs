@@ -25,7 +25,6 @@ using Microsoft.Win32;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Security;
-using System.Web.Security;
 
 namespace Keenou
 {
@@ -43,6 +42,7 @@ namespace Keenou
         // All possible ciphers and hashes supported
         protected string[] ciphers = { "AES", "Serpent", "Twofish", "AES(Twofish)", "AES(Twofish(Serpent))", "Serpent(AES)", "Serpent(Twofish(AES))", "Twofish(Serpent)" };
         protected string[] hashes = { "sha256", "sha512", "whirlpool", "ripemd160" };
+        protected string[] clouds = { "Dropbox" };
 
         // Various globals used throughout routines 
         protected string defaultVolumeLoc = string.Empty;
@@ -221,23 +221,13 @@ namespace Keenou
             l_statusLabel.Text = "Generating encryption key ...";
             Application.DoEvents();
 
-            string masterKey = null;
-            string encMasterKey = null;
-            try
-            {
-                int nonAlphaChars = Math.Abs(Random.NextInt() % (MASTERKEY_PW_CHAR_COUNT + 1));
-                masterKey = Membership.GeneratePassword(MASTERKEY_PW_CHAR_COUNT, nonAlphaChars);
-                encMasterKey = AESGCM.SimpleEncryptWithPassword(masterKey, t_password.Text);
+            string masterKey = Toolbox.GenerateKey(MASTERKEY_PW_CHAR_COUNT);
+            string encMasterKey = Toolbox.PasswordEncryptKey(masterKey, t_password.Text);
 
-                // Ensure we got good stuff back 
-                if (masterKey == null | encMasterKey == null)
-                {
-                    throw new Exception("Failed to obtain a master key or header!");
-                }
-            }
-            catch (Exception err)
+            // Ensure we got good stuff back 
+            if (masterKey == null || encMasterKey == null)
             {
-                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "ERROR: Cannot generate master key! " + err.Message });
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "ERROR: Cannot generate master key!" });
                 return;
             }
             // * //
@@ -427,21 +417,49 @@ namespace Keenou
             // * //
 
 
+
+            // Disable while we calcualte stuff 
+            this.Cursor = Cursors.WaitCursor;
+            g_tabContainer.Controls[1].Enabled = false;
+
+
             // Generate a new GUID to identify this FS
             string guid = Guid.NewGuid().ToString();
 
 
 
             BooleanResult res = null;
-            string type = "Dropbox";
+
+
 
             // Figure out where the cloud's folder is on this computer 
+            string type = clouds[0];
             string cloudPath = EncryptFS.GetCloudServicePath(type);
             if (cloudPath == null)
             {
                 ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot find folder path for cloud service " + type });
                 return;
             }
+            // * //
+
+
+
+            // Generate master key & protect with user password //
+            l_statusLabel.Text = "Generating encryption key ...";
+            string password = "temporary";
+
+            string masterKey = Toolbox.GenerateKey(MASTERKEY_PW_CHAR_COUNT);
+            string encMasterKey = Toolbox.PasswordEncryptKey(masterKey, password);
+
+            // Ensure we got good stuff back 
+            if (masterKey == null || encMasterKey == null)
+            {
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "ERROR: Cannot generate master key!" });
+                return;
+            }
+
+            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encHeader", encMasterKey);
+            // * //
 
 
 
@@ -453,12 +471,13 @@ namespace Keenou
 
             // Create new EncFS
             l_statusLabel.Text = "Creating EncFS drive";
-            res = EncryptFS.CreateEncryptedFS(guid, tempFolderName, targetDrive, "temporary", "Secure " + type, true);
+            res = EncryptFS.CreateEncryptedFS(guid, tempFolderName, targetDrive, masterKey, "Secure " + type, true);
             if (res == null || !res.Success)
             {
                 ReportEncryptCloudError(res);
                 return;
             }
+            // * //
 
 
             // Copy cloud data over 
@@ -469,6 +488,7 @@ namespace Keenou
                 ReportEncryptCloudError(res);
                 return;
             }
+            // * //
 
 
             // Unmount encrypted folder (prepare to move it) 
@@ -478,6 +498,7 @@ namespace Keenou
                 ReportEncryptCloudError(res);
                 return;
             }
+            // * //
 
 
             // TODO: RENAME (FOR NOW) CLOUD FOLDER TO XXXX.BACKUP -- switch to remove after beta 
@@ -490,6 +511,7 @@ namespace Keenou
                 ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot remove old Cloud folder, maybe syncing was not pause or a file is in use? " + err.Message });
                 return;
             }
+            // * //
 
 
             // Move the encrypted cloud folder to the old cloud path (Cloud provider should re-sync with encrypted files) 
@@ -499,9 +521,10 @@ namespace Keenou
             }
             catch (Exception err)
             {
-                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot move Cloud folder, maybe syncing was not pause or a file is in use? " + err.Message });
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot move Cloud folder, maybe syncing was not paused or a file is in use? " + err.Message });
                 return;
             }
+            // * //
 
 
             // Update the location of the encrypted volume (was temp, now is the cloud path) 
@@ -511,13 +534,14 @@ namespace Keenou
                 ReportEncryptCloudError(res);
                 return;
             }
+            // * //
 
 
 
             // TODO: Recover from errors along the way 
 
 
-            
+
             // GET A NEW FREE DRIVE LETTER 
             targetDrive = Toolbox.GetNextFreeDriveLetter();
             if (targetDrive == null)
@@ -529,12 +553,24 @@ namespace Keenou
 
 
             // Mount their freshly-created encrypted drive 
-            res = EncryptFS.MountEncryptedFS(guid, targetDrive, "temporary", "Secure " + type);
+            res = EncryptFS.MountEncryptedFS(guid, targetDrive, masterKey, "Secure " + type);
             if (res == null || !res.Success)
             {
                 ReportEncryptCloudError(res);
                 return;
             }
+            // * //
+
+
+
+            // Re-enable everything //
+            this.Cursor = Cursors.Default;
+            g_tabContainer.Controls[1].Enabled = true;
+            l_statusLabel.Text = "Successfully moved your cloud folder!";
+            s_progress.Value = 0;
+            s_progress.Visible = false;
+            Application.DoEvents();
+            // * //
 
         }
         // * //

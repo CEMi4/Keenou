@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keenou", "Keenou\Keenou.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoContainer", "..\Keenou-pGINA\Plugins\Contrib\CryptoContainer\CryptoContainer\CryptoContainer.csproj", "{1C0A44F1-280D-4189-A3BF-224535342F32}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Keenou-Installer", "..\InstallKeenou\InstallKeenou\InstallKeenou.vdproj", "{5F09A0F5-E661-4C64-BF97-860BC24C34B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,12 @@ Global
 		{1C0A44F1-280D-4189-A3BF-224535342F32}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{1C0A44F1-280D-4189-A3BF-224535342F32}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1C0A44F1-280D-4189-A3BF-224535342F32}.Release|x86.ActiveCfg = Release|Any CPU
+		{5F09A0F5-E661-4C64-BF97-860BC24C34B8}.Debug|Any CPU.ActiveCfg = Debug
+		{5F09A0F5-E661-4C64-BF97-860BC24C34B8}.Debug|Mixed Platforms.ActiveCfg = Debug
+		{5F09A0F5-E661-4C64-BF97-860BC24C34B8}.Debug|x86.ActiveCfg = Debug
+		{5F09A0F5-E661-4C64-BF97-860BC24C34B8}.Release|Any CPU.ActiveCfg = Release
+		{5F09A0F5-E661-4C64-BF97-860BC24C34B8}.Release|Mixed Platforms.ActiveCfg = Release
+		{5F09A0F5-E661-4C64-BF97-860BC24C34B8}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
