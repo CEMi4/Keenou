@@ -117,7 +117,7 @@ namespace Keenou
                 }
                 catch (Exception err)
                 {
-                    return new BooleanResult() { Success = false, Message = "ERROR: Failed to mount encrypted home volume. " + err.Message };
+                    return new BooleanResult() { Success = false, Message = "ERROR: Failed to mount encrypted volume. " + err.Message };
                 }
 
             }
@@ -136,6 +136,54 @@ namespace Keenou
                 return new BooleanResult() { Success = false, Message = "ERROR: Could not mount encrypted drive!" };
             }
 
+
+            return new BooleanResult() { Success = true };
+        }
+        // * //
+
+
+
+        // unmount home folder's encrypted file //
+        public static BooleanResult UnmountEncryptedVolume(string targetDrive)
+        {
+
+            using (Process process = new Process())
+            {
+
+                // GET VeraCrypt DIRECTORY
+                string programDir = Toolbox.GetSoftwareDirectory("VeraCrypt");
+                if (programDir == null)
+                {
+                    return new BooleanResult() { Success = false, Message = "ERROR: VeraCrypt inaccessible!" };
+                }
+
+
+                // MOUNT ENCRYPTED CONTAINER 
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                try
+                {
+                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    startInfo.FileName = "cmd.exe";
+                    startInfo.Arguments = "/C \"\"" + programDir + "VeraCrypt.exe\" /q /d " + targetDrive + "\"";
+                    process.StartInfo = startInfo;
+                    process.Start();
+                    process.WaitForExit();
+
+                    // Ensure no errors were thrown 
+                    if (process.ExitCode != 0)
+                    {
+                        return new BooleanResult() { Success = false, Message = "ERROR: Error while unmounting encrypted file!" };
+                    }
+
+                    //m_logger.InfoFormat("CMD Argument: {0}", startInfo.Arguments);
+                }
+                catch (Exception err)
+                {
+                    return new BooleanResult() { Success = false, Message = "ERROR: Failed to unmount encrypted volume. " + err.Message };
+                }
+
+            }
+            // * //
 
             return new BooleanResult() { Success = true };
         }
@@ -179,7 +227,7 @@ namespace Keenou
                 {
                     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"robocopy \"" + sourceFolder + "\" " + targetDrive + ":\\ /MIR /copyall /sl /xj /r:0\"";
+                    startInfo.Arguments = "/C \"robocopy \"" + sourceFolder + "\" " + targetDrive + ":\\ /zb /MIR /copyall /sl /xj /r:0\"";
                     process.StartInfo = startInfo;
                     process.Start(); // this may take a while! 
                     process.WaitForExit();

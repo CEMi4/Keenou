@@ -33,7 +33,6 @@ namespace Keenou
     {
         // General random number generator instance 
         private static readonly SecureRandom Random = new SecureRandom();
-        public static readonly string KeenouProgramDirectory = (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") ?? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) + @"\Keenou\";
 
 
         // Get next free logical drive letter //
@@ -149,14 +148,14 @@ namespace Keenou
                 case "VeraCrypt":
 
                     // Prefer local installation over global one 
-                    testLoc = KeenouProgramDirectory + @"\VeraCrypt\";
+                    testLoc = Path.Combine(Config.KeenouProgramDirectory, @"VeraCrypt\");
                     if (Directory.Exists(testLoc))
                     {
                         return testLoc;
                     }
 
                     // As backup, try using global installation 
-                    testLoc = (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") ?? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) + @"\VeraCrypt\";
+                    testLoc = Path.Combine(Config.x86ProgramDirectory, @"VeraCrypt\");
                     if (Directory.Exists(testLoc))
                     {
                         return testLoc;
@@ -169,7 +168,14 @@ namespace Keenou
                 case "EncFS":
 
                     // Prefer local installation over global one 
-                    testLoc = KeenouProgramDirectory + @"\EncFS\";
+                    testLoc = Path.Combine(Config.KeenouProgramDirectory, @"EncFS\");
+                    if (Directory.Exists(testLoc))
+                    {
+                        return testLoc;
+                    }
+
+                    // As backup, try using global installation 
+                    testLoc = Path.Combine(Config.x86ProgramDirectory, @"EncFS\");
                     if (Directory.Exists(testLoc))
                     {
                         return testLoc;
@@ -182,7 +188,7 @@ namespace Keenou
                 case "Dokan":
 
                     // Use global installation
-                    testLoc = (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") ?? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) + @"\Dokan\DokanLibrary\";
+                    testLoc = Path.Combine(Config.x86ProgramDirectory, @"Dokan\DokanLibrary\");
                     if (Directory.Exists(testLoc))
                     {
                         return testLoc;

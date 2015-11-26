@@ -18,14 +18,12 @@
 */
 
 using System;
-using System.Linq;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Win32;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Windows.Forms;
+using System.Web.Script.Serialization;
+using System.Data.SQLite;
 
 namespace Keenou
 {
@@ -33,6 +31,11 @@ namespace Keenou
     /// <summary>
     /// Helper class to access Dropbox's JSON configuration file 
     /// </summary>
+    public class DropboxJSON
+    {
+        public DropboxJSONItem business;
+        public DropboxJSONItem personal;
+    }
     public class DropboxJSONItem
     {
         public long host;
@@ -43,59 +46,44 @@ namespace Keenou
 
     class EncryptFS
     {
-        private const string ENCFS_CONFIG_FILENAME = ".encfs6.xml";
-
-        // ENCFS6_CONFIG environment variable to change config file location 
-
-
 
         // Get folder path for cloud service //
         public static string GetCloudServicePath(string type)
         {
             string folderPath = null;
-
+            string configPath, configFilePath;
 
             switch (type)
             {
                 case "Dropbox":
-                    string JSONpath = @"\Dropbox\info.json";
+                    configPath = @"Dropbox\info.json";
 
-
-                    // Find config file -- first type %APPDATA%, then %LOCALAPPDATA% 
-                    string configFilePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + JSONpath;
+                    // Find config file -- first try %APPDATA%, then %LOCALAPPDATA% 
+                    configFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), configPath);
                     if (!File.Exists(configFilePath))
                     {
-                        configFilePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + JSONpath;
+                        configFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), configPath);
                         if (!File.Exists(configFilePath))
                         {
                             return null;
                         }
                     }
 
-
                     // Read and parse config file 
                     string personalPath = null;
                     string businessPath = null;
                     using (StreamReader r = new StreamReader(configFilePath))
                     {
-                        JObject search = JObject.Parse(r.ReadToEnd());
-                        IList<JToken> allAcctTypes = search.Children().ToList();
+                        var serializer = new JavaScriptSerializer();
+                        DropboxJSON accounts = serializer.Deserialize<DropboxJSON>(r.ReadToEnd());
 
-                        foreach (JToken acctType in allAcctTypes)
+                        if (accounts.personal != null)
                         {
-                            foreach (JObject settings in acctType)
-                            {
-                                if (settings.Path == "personal")
-                                {
-                                    DropboxJSONItem res = JsonConvert.DeserializeObject<DropboxJSONItem>(settings.ToString());
-                                    personalPath = res.path;
-                                }
-                                if (settings.Path == "business")
-                                {
-                                    DropboxJSONItem res = JsonConvert.DeserializeObject<DropboxJSONItem>(settings.ToString());
-                                    businessPath = res.path;
-                                }
-                            }
+                            personalPath = accounts.personal.path;
+                        }
+                        if (accounts.business != null)
+                        {
+                            businessPath = accounts.business.path;
                         }
 
                         // Only support personal folder for now 
@@ -104,7 +92,55 @@ namespace Keenou
 
 
                     break;
+
+
+                case "Google Drive":
+                    configPath = @"Google\Drive\user_default\sync_config.db";
+
+                    // Find config file -- first try Google\Drive\user_default\sync_config.db, then Google\Drive\sync_config.db
+                    configFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), configPath);
+                    if (!File.Exists(configFilePath))
+                    {
+                        configPath = @"Google\Drive\sync_config.db";
+                        configFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), configPath);
+                        if (!File.Exists(configFilePath))
+                        {
+                            return null;
+                        }
+                    }
+
+                    using (SQLiteConnection con = new SQLiteConnection(@"Data Source=" + configFilePath + ";Version=3;New=False;Compress=True;"))
+                    {
+                        con.Open();
+                        using (SQLiteCommand sqLitecmd = new SQLiteCommand(con))
+                        {
+                            sqLitecmd.CommandText = "select * from data where entry_key='local_sync_root_path'";
+
+                            using (SQLiteDataReader reader = sqLitecmd.ExecuteReader())
+                            {
+                                reader.Read();
+
+                                // data_value is in format "\\?\<path>" 
+                                folderPath = reader["data_value"].ToString().Substring(4);
+                            }
+                        }
+                    }
+
+                    break;
+
+
+                case "OneDrive":
+
+                    // Find config file -- first try SkyDrive (old name), then OneDrive
+                    folderPath = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\SkyDrive", "UserFolder", null);
+                    if (folderPath == null)
+                    {
+                        folderPath = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\OneDrive", "UserFolder", null);
+                    }
+
+                    break;
             }
+
 
             return folderPath;
         }
@@ -121,7 +157,7 @@ namespace Keenou
             // Update volume location (after migrating enc volume to cloud location, for instance) 
             if (!string.IsNullOrEmpty(volumeLoc))
             {
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encContainerLoc", volumeLoc);
+                Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encContainerLoc", volumeLoc);
             }
 
             return new BooleanResult() { Success = true };
@@ -171,8 +207,8 @@ namespace Keenou
 
 
             // Save setting values to registry  
-            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encContainerLoc", volumeLoc);
-            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "configLoc", configLoc);
+            Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encContainerLoc", volumeLoc);
+            Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "configLoc", configLoc);
 
 
             using (Process process = new Process())
@@ -189,7 +225,7 @@ namespace Keenou
                     startInfo.RedirectStandardInput = true;
                     startInfo.UseShellExecute = false;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + ENCFS_CONFIG_FILENAME;
+                    startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + Config.ENCFS_CONFIG_FILENAME;
                     startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + ":\"\"";
                     process.StartInfo = startInfo;
                     process.Start();
@@ -223,7 +259,7 @@ namespace Keenou
                         else
                         {
                             // Save where we mounted the encrypted volume 
-                            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encDrive", targetDrive);
+                            Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encDrive", targetDrive);
                         }
                     }
                     else
@@ -256,7 +292,7 @@ namespace Keenou
         {
 
             // Determine location of configuration file 
-            string configLoc = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "configLoc", string.Empty);
+            string configLoc = (string)Registry.GetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "configLoc", string.Empty);
             if (string.IsNullOrEmpty(configLoc))
             {
                 return new BooleanResult() { Success = false, Message = "ERROR: Invalid GUID given to mount!" };
@@ -264,7 +300,7 @@ namespace Keenou
 
 
             // Pull enc volume location from registry for this GUID 
-            string volumeLoc = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encContainerLoc", string.Empty);
+            string volumeLoc = (string)Registry.GetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encContainerLoc", string.Empty);
             if (string.IsNullOrEmpty(volumeLoc))
             {
                 return new BooleanResult() { Success = false, Message = "ERROR: Invalid GUID given to mount!" };
@@ -307,7 +343,7 @@ namespace Keenou
                     startInfo.RedirectStandardInput = true;
                     startInfo.UseShellExecute = false;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + ENCFS_CONFIG_FILENAME;
+                    startInfo.EnvironmentVariables["ENCFS6_CONFIG"] = configLoc + Config.ENCFS_CONFIG_FILENAME;
                     startInfo.Arguments = "/C \"\"" + programDir + "encfs.exe\" --require-macs --stdinpass -o volname=\"" + label + "\" \"" + volumeLoc + "\" \"" + targetDrive + ":\"\"";
                     process.StartInfo = startInfo;
                     process.Start();
@@ -333,7 +369,7 @@ namespace Keenou
 
 
                     // Save where we mounted the encrypted volume 
-                    Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encDrive", targetDrive);
+                    Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encDrive", targetDrive);
 
 
                     // Process will block indefinitely (until unmount called), so just return 

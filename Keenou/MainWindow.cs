@@ -25,6 +25,7 @@ using Microsoft.Win32;
 using System.Threading;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Security;
+using System.Diagnostics;
 
 namespace Keenou
 {
@@ -32,17 +33,6 @@ namespace Keenou
     {
         // General random number generator instance 
         private static readonly SecureRandom Random = new SecureRandom();
-
-        // Constants pre-defined 
-        const int MASTERKEY_PW_CHAR_COUNT = 100;        // Character count for master key password 
-        const int CIPHER_C_DEFAULT = 0;                 // Drop-down index for default cipher in UI 
-        const int HASH_C_DEFAULT = 2;                   // Drop-down index for default hash in UI 
-        const int VOLUME_SIZE_MULT_DEFAULT = 2;         // Suggest volume size should be this times larger than current est. home directory size 
-
-        // All possible ciphers and hashes supported
-        protected string[] ciphers = { "AES", "Serpent", "Twofish", "AES(Twofish)", "AES(Twofish(Serpent))", "Serpent(AES)", "Serpent(Twofish(AES))", "Twofish(Serpent)" };
-        protected string[] hashes = { "sha256", "sha512", "whirlpool", "ripemd160" };
-        protected string[] clouds = { "Dropbox" };
 
         // Various globals used throughout routines 
         protected string defaultVolumeLoc = string.Empty;
@@ -78,8 +68,8 @@ namespace Keenou
 
 
             // Figure out where the home folder's encrypted file is located for this user //
-            string encDrive = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encDrive", string.Empty);
-            string encContainerLoc = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encContainerLoc", string.Empty);
+            string encDrive = (string)Registry.GetValue(Config.LOCAL_MACHINE_REG_ROOT + this.usrSID, "encDrive", string.Empty);
+            string encContainerLoc = (string)Registry.GetValue(Config.LOCAL_MACHINE_REG_ROOT + this.usrSID, "encContainerLoc", string.Empty);
             if (!string.IsNullOrWhiteSpace(encContainerLoc) && !string.IsNullOrWhiteSpace(encDrive) && Directory.Exists(encDrive + @":\"))
             {
                 // We're already running in an encrypted home directory environment! 
@@ -103,8 +93,8 @@ namespace Keenou
         {
 
             // Choose defaults  
-            c_cipher.SelectedIndex = CIPHER_C_DEFAULT;
-            c_hash.SelectedIndex = HASH_C_DEFAULT;
+            c_cipher.SelectedIndex = Config.CIPHER_C_DEFAULT;
+            c_hash.SelectedIndex = Config.HASH_C_DEFAULT;
 
 
             // Fill out user name and SID
@@ -156,7 +146,7 @@ namespace Keenou
             }
             if (t_volumeLoc.Text.Contains(this.homeFolder))
             {
-                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "You cannot put your encrypted volume in your home directory!" });
+                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "You cannot store your encrypted home volume in your home directory!" });
                 return;
             }
             if (c_hash.SelectedIndex < 0)
@@ -221,7 +211,7 @@ namespace Keenou
             l_statusLabel.Text = "Generating encryption key ...";
             Application.DoEvents();
 
-            string masterKey = Toolbox.GenerateKey(MASTERKEY_PW_CHAR_COUNT);
+            string masterKey = Toolbox.GenerateKey(Config.MASTERKEY_PW_CHAR_COUNT);
             string encMasterKey = Toolbox.PasswordEncryptKey(masterKey, t_password.Text);
 
             // Ensure we got good stuff back 
@@ -244,7 +234,7 @@ namespace Keenou
                 // Update UI 
                 this.Invoke((MethodInvoker)delegate
                 {
-                    s_progress.Value = 25;
+                    s_progress.Value = 17;
                     l_statusLabel.Text = "Creating encrypted volume ...";
                     Application.DoEvents();
                     s_progress.ProgressBar.Refresh();
@@ -263,7 +253,7 @@ namespace Keenou
                 // Update UI 
                 this.Invoke((MethodInvoker)delegate
                 {
-                    s_progress.Value = 50;
+                    s_progress.Value = 33;
                     l_statusLabel.Text = "Mounting encrypted volume ...";
                     Application.DoEvents();
                     s_progress.ProgressBar.Refresh();
@@ -282,7 +272,7 @@ namespace Keenou
                 // Update UI 
                 this.Invoke((MethodInvoker)delegate
                 {
-                    s_progress.Value = 75;
+                    s_progress.Value = 50;
                     l_statusLabel.Text = "Copying home directory to encrypted container ...";
                     Application.DoEvents();
                     s_progress.ProgressBar.Refresh();
@@ -298,9 +288,59 @@ namespace Keenou
 
 
 
-                // TODO: Unmount encrypted volume (after beta testing over) 
-                // VeraCrypt should auto-unmount, but we'll do it manually to be sure 
+                // Update UI 
+                this.Invoke((MethodInvoker)delegate
+                {
+                    s_progress.Value = 67;
+                    l_statusLabel.Text = "Unmounting encrypted drive ...";
+                    Application.DoEvents();
+                    s_progress.ProgressBar.Refresh();
+                });
 
+                // unmount so we can mount upon login 
+                res = EncryptDirectory.UnmountEncryptedVolume(targetDrive);
+                if (res == null || !res.Success)
+                {
+                    return res;
+                }
+                // * //
+
+
+
+                // Update UI 
+                this.Invoke((MethodInvoker)delegate
+                {
+                    s_progress.Value = 84;
+                    l_statusLabel.Text = "Installing Keenou-pGina ...";
+                    Application.DoEvents();
+                    s_progress.ProgressBar.Refresh();
+                });
+
+                // Install Keenou-pGina 
+                using (Process process = new Process())
+                {
+
+                    ProcessStartInfo startInfo = new ProcessStartInfo();
+                    try
+                    {
+                        startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                        startInfo.FileName = "cmd.exe";
+                        startInfo.Arguments = "/C \"\"" + Config.KeenouProgramDirectory + "\\Keenou-pGina-setup.exe\"\"";
+                        process.StartInfo = startInfo;
+                        process.Start(); // this may take a while! 
+                        process.WaitForExit();
+
+                        // Ensure no errors were thrown 
+                        if (process.ExitCode > 0)
+                        {
+                            return new BooleanResult() { Success = false, Message = "ERROR: Error while installing Keenou-pGina!" };
+                        }
+                    }
+                    catch (Exception err)
+                    {
+                        return new BooleanResult() { Success = false, Message = "ERROR: Failed to install Keenou-pGina. " + err.Message };
+                    }
+                }
 
 
                 return new BooleanResult() { Success = true };
@@ -326,10 +366,10 @@ namespace Keenou
 
 
                 // Set necessary registry values //
-                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encContainerLoc", t_volumeLoc.Text);
-                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "firstBoot", true, RegistryValueKind.DWord);
-                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "hash", hashChosen);
-                Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\" + this.usrSID, "encHeader", encMasterKey);
+                Registry.SetValue(Config.LOCAL_MACHINE_REG_ROOT + this.usrSID, "encContainerLoc", t_volumeLoc.Text);
+                Registry.SetValue(Config.LOCAL_MACHINE_REG_ROOT + this.usrSID, "firstBoot", true, RegistryValueKind.DWord);
+                Registry.SetValue(Config.LOCAL_MACHINE_REG_ROOT + this.usrSID, "hash", hashChosen);
+                Registry.SetValue(Config.LOCAL_MACHINE_REG_ROOT + this.usrSID, "encHeader", encMasterKey);
                 // * //
 
 
@@ -407,7 +447,7 @@ namespace Keenou
         private void b_encryptCloud_Click(object sender, EventArgs e)
         {
             // Sanity checks //
-            if (t_cloudPW.Text.Length <= 0 || !string.Equals(t_cloudPW.Text, t_cloudPWConf.Text))
+            if (t_cloudPW.Text.Length < Config.MIN_PASSWORD_LEN || !string.Equals(t_cloudPW.Text, t_cloudPWConf.Text))
             {
                 ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "Passwords provided must match and be non-zero in length!" });
                 return;
@@ -437,12 +477,13 @@ namespace Keenou
 
 
 
+            // Helper result object
             BooleanResult res = null;
 
 
 
             // Figure out where the cloud's folder is on this computer 
-            string type = clouds[0];
+            string type = Config.CLOUD_SERVICES[0];
             string cloudPath = EncryptFS.GetCloudServicePath(type);
             if (cloudPath == null)
             {
@@ -455,18 +496,24 @@ namespace Keenou
 
             // Generate master key & protect with user password //
             l_statusLabel.Text = "Generating encryption key ...";
+            Application.DoEvents();
 
-            string masterKey = Toolbox.GenerateKey(MASTERKEY_PW_CHAR_COUNT);
+            string masterKey = Toolbox.GenerateKey(Config.MASTERKEY_PW_CHAR_COUNT);
             string encMasterKey = Toolbox.PasswordEncryptKey(masterKey, t_cloudPW.Text);
 
             // Ensure we got good stuff back 
-            if (masterKey == null || encMasterKey == null)
+            if (masterKey == null)
             {
-                ReportEncryptHomeError(new BooleanResult() { Success = false, Message = "ERROR: Cannot generate master key!" });
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot generate master key!" });
+                return;
+            }
+            if (encMasterKey == null)
+            {
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot encrypt master key!" });
                 return;
             }
 
-            Registry.SetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encHeader", encMasterKey);
+            Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encHeader", encMasterKey);
             // * //
 
 
@@ -600,9 +647,9 @@ namespace Keenou
 
 
             // Figure out where the cloud's folder is on this computer 
-            string type = clouds[0];
+            string type = Config.CLOUD_SERVICES[0];
             string cloudPath = EncryptFS.GetCloudServicePath(type);
-            if (cloudPath == null)
+            if (cloudPath == null || !Directory.Exists(cloudPath))
             {
                 MessageBox.Show("ERROR: Cannot find folder path for cloud service " + type);
                 return;
@@ -634,7 +681,7 @@ namespace Keenou
 
             // Get and decrypt user's master key (using user password) //
             string masterKey = null;
-            string encHeader = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encHeader", null);
+            string encHeader = (string)Registry.GetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encHeader", null);
             if (string.IsNullOrEmpty(encHeader))
             {
                 MessageBox.Show("User's header information could not be found.");
@@ -673,7 +720,7 @@ namespace Keenou
 
 
             // Figure out where the cloud's folder is on this computer 
-            string type = clouds[0];
+            string type = Config.CLOUD_SERVICES[0];
             string cloudPath = EncryptFS.GetCloudServicePath(type);
             if (cloudPath == null)
             {
@@ -705,7 +752,7 @@ namespace Keenou
 
 
             // Determine where this cloud is mounted to //
-            string targetDrive = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Keenou\" + guid, "encDrive", null);
+            string targetDrive = (string)Registry.GetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encDrive", null);
             if (string.IsNullOrEmpty(targetDrive))
             {
                 MessageBox.Show("Target drive not found!  Is cloud mounted?");
@@ -768,7 +815,7 @@ namespace Keenou
 
 
             // Show suggested volume size 
-            long volSizeSuggested = (VOLUME_SIZE_MULT_DEFAULT * this.homeDirSize / (1024 * 1024));
+            long volSizeSuggested = (Config.VOLUME_SIZE_MULT_DEFAULT * this.homeDirSize / (1024 * 1024));
             t_volumeSize.Text = volSizeSuggested.ToString();
 
 
