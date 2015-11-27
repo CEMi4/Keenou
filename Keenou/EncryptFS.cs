@@ -438,7 +438,65 @@ namespace Keenou
 
 
         // Copy files over from old folder to new, enc folder //
-        public static BooleanResult CopyDataFromFolder(string sourceFolder, string targetDrive, string encDriveLoc)
+        public static BooleanResult MoveDataFromFolder(string sourceFolder, string targetDrive)
+        {
+            // First copy files over
+            using (Process process = new Process())
+            {
+
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                try
+                {
+                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    startInfo.FileName = "cmd.exe";
+                    startInfo.Arguments = "/C \"FOR %i IN (\"" + sourceFolder + "\\*\") DO MOVE /Y \"%i\" \"" + targetDrive + "\\%~nxi\" \"";
+                    process.StartInfo = startInfo;
+                    process.Start(); // this may take a while! 
+                    process.WaitForExit();
+
+                    // Ensure no errors were thrown 
+                    if (process.ExitCode > 0)
+                    {
+                        return new BooleanResult() { Success = false, Message = "ERROR: Error while moving root files! " + process.ExitCode };
+                    }
+
+                }
+                catch (Exception err)
+                {
+                    return new BooleanResult() { Success = false, Message = "ERROR: Failed to finish moving root cloud volume. " + err.Message };
+                }
+            }
+
+            // Then clear files out of old folder 
+            using (Process process = new Process())
+            {
+
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                try
+                {
+                    startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    startInfo.FileName = "cmd.exe";
+                    startInfo.Arguments = "/C \"FOR /D %i IN (\"" + sourceFolder + "\\*\") DO ROBOCOPY /MOVE /MIR /sl /xj /r:0 \"%i\" \"" + targetDrive + "\\%~nxi\" \"";
+                    process.StartInfo = startInfo;
+                    process.Start(); // this may take a while! 
+                    process.WaitForExit();
+
+                    // Ensure no errors were thrown 
+                    if (process.ExitCode > 7)
+                    {
+                        return new BooleanResult() { Success = false, Message = "ERROR: Error while moving subfiles! " + process.ExitCode };
+                    }
+
+                }
+                catch (Exception err)
+                {
+                    return new BooleanResult() { Success = false, Message = "ERROR: Failed to finish moving cloud subvolume. " + err.Message };
+                }
+            }
+
+            return new BooleanResult() { Success = true };
+        }
+        public static BooleanResult CopyDataFromFolder(string sourceFolder, string targetDrive)
         {
 
             // Make sure old location exists (before moving files over to new location) 
@@ -449,6 +507,8 @@ namespace Keenou
             // * //
 
 
+            // TODO: ensure robocopy exists (Win 7+)
+
 
             using (Process process = new Process())
             {
@@ -458,41 +518,21 @@ namespace Keenou
                 {
                     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"xcopy /E /Q /G /H /exclude:CloudExcludes.txt \"" + sourceFolder + "\" " + targetDrive + ":\\\"";
+                    startInfo.Arguments = "/C \"robocopy \"" + sourceFolder + "\" " + targetDrive + " /MIR /sl /xj /r:0\"";
                     process.StartInfo = startInfo;
                     process.Start(); // this may take a while! 
                     process.WaitForExit();
 
                     // Ensure no errors were thrown 
-                    if (process.ExitCode > 0)
+                    if (process.ExitCode > 7)
                     {
-                        return new BooleanResult() { Success = false, Message = "ERROR: Error while copying files over!" };
+                        return new BooleanResult() { Success = false, Message = "ERROR: Error while copying files over! " + process.ExitCode };
                     }
 
                 }
                 catch (Exception err)
                 {
-                    return new BooleanResult() { Success = false, Message = "ERROR: Failed to finish moving cloud volume. " + err.Message };
-                }
-            }
-
-
-            // Copy over excluded files directly to encrypted folder (cloud config files) 
-            StreamReader file = new StreamReader("CloudExcludes.txt");
-            string line;
-            while ((line = file.ReadLine()) != null)
-            {
-                IEnumerable<string> sfiles = Directory.EnumerateFiles(sourceFolder, line, SearchOption.AllDirectories);
-                foreach (string sfile in sfiles)
-                {
-                    int lastSlash = sfile.LastIndexOf('\\');
-                    if (lastSlash >= 0)
-                    {
-                        string filename = sfile.Substring(lastSlash);
-                        string relPath = sfile.Substring(0, lastSlash);
-                        relPath = relPath.Replace(sourceFolder, "");
-                        File.Copy(sfile, encDriveLoc + relPath + filename, false);
-                    }
+                    return new BooleanResult() { Success = false, Message = "ERROR: Failed to finish copying cloud volume. " + err.Message };
                 }
             }
 

@@ -43,6 +43,9 @@ namespace Keenou
 
         // Cloud service providers supported 
         public static readonly string[] CLOUD_SERVICES = { "Dropbox", "Google Drive", "OneDrive" };
+        public static readonly int CLOUD_DROPBOX = 0;
+        public static readonly int CLOUD_GOOGLE = 1;
+        public static readonly int CLOUD_ONEDRIVE = 2;
 
         // Registry key roots 
         public static readonly string LOCAL_MACHINE_REG_ROOT = @"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\";
