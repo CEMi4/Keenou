@@ -35,7 +35,7 @@ namespace Keenou
             {
 
                 // GET VeraCrypt DIRECTORY
-                string programDir = Toolbox.GetSoftwareDirectory("VeraCrypt");
+                string programDir = Toolbox.GetSoftwareDirectory(Config.Software.VeraCrypt);
                 if (programDir == null)
                 {
                     return new BooleanResult() { Success = false, Message = "ERROR: VeraCrypt inaccessible!" };
@@ -89,7 +89,7 @@ namespace Keenou
             {
 
                 // GET VeraCrypt DIRECTORY
-                string programDir = Toolbox.GetSoftwareDirectory("VeraCrypt");
+                string programDir = Toolbox.GetSoftwareDirectory(Config.Software.VeraCrypt);
                 if (programDir == null)
                 {
                     return new BooleanResult() { Success = false, Message = "ERROR: VeraCrypt inaccessible!" };
@@ -151,7 +151,7 @@ namespace Keenou
             {
 
                 // GET VeraCrypt DIRECTORY
-                string programDir = Toolbox.GetSoftwareDirectory("VeraCrypt");
+                string programDir = Toolbox.GetSoftwareDirectory(Config.Software.VeraCrypt);
                 if (programDir == null)
                 {
                     return new BooleanResult() { Success = false, Message = "ERROR: VeraCrypt inaccessible!" };

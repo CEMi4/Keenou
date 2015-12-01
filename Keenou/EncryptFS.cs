@@ -48,14 +48,14 @@ namespace Keenou
     {
 
         // Get folder path for cloud service //
-        public static string GetCloudServicePath(string type)
+        public static string GetCloudServicePath(Config.Clouds type)
         {
             string folderPath = null;
             string configPath, configFilePath;
 
             switch (type)
             {
-                case "Dropbox":
+                case Config.Clouds.Dropbox:
                     configPath = @"Dropbox\info.json";
 
                     // Find config file -- first try %APPDATA%, then %LOCALAPPDATA% 
@@ -94,7 +94,7 @@ namespace Keenou
                     break;
 
 
-                case "Google Drive":
+                case Config.Clouds.GoogleDrive:
                     configPath = @"Google\Drive\user_default\sync_config.db";
 
                     // Find config file -- first try Google\Drive\user_default\sync_config.db, then Google\Drive\sync_config.db
@@ -129,7 +129,7 @@ namespace Keenou
                     break;
 
 
-                case "OneDrive":
+                case Config.Clouds.OneDrive:
 
                     // Find config file -- first try SkyDrive (old name), then OneDrive
                     folderPath = (string)Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\SkyDrive", "UserFolder", null);
@@ -177,7 +177,7 @@ namespace Keenou
 
 
             // GET EncFS DIRECTORY
-            string programDir = Toolbox.GetSoftwareDirectory("EncFS");
+            string programDir = Toolbox.GetSoftwareDirectory(Config.Software.EncFS);
             if (programDir == null)
             {
                 return new BooleanResult() { Success = false, Message = "ERROR: EncFS inaccessible!" };
@@ -185,7 +185,7 @@ namespace Keenou
 
 
             // GET Dokan DIRECTORY
-            string dokanDir = Toolbox.GetSoftwareDirectory("Dokan");
+            string dokanDir = Toolbox.GetSoftwareDirectory(Config.Software.Dokan);
             if (dokanDir == null)
             {
                 return new BooleanResult() { Success = false, Message = "ERROR: Dokan inaccessible!" };
@@ -316,7 +316,7 @@ namespace Keenou
             {
 
                 // GET EncFS DIRECTORY
-                string programDir = Toolbox.GetSoftwareDirectory("EncFS");
+                string programDir = Toolbox.GetSoftwareDirectory(Config.Software.EncFS);
                 if (programDir == null)
                 {
                     return new BooleanResult() { Success = false, Message = "ERROR: EncFS inaccessible!" };
@@ -324,7 +324,7 @@ namespace Keenou
 
 
                 // GET Dokan DIRECTORY
-                string dokanDir = Toolbox.GetSoftwareDirectory("Dokan");
+                string dokanDir = Toolbox.GetSoftwareDirectory(Config.Software.Dokan);
                 if (dokanDir == null)
                 {
                     return new BooleanResult() { Success = false, Message = "ERROR: Dokan inaccessible!" };
@@ -399,7 +399,7 @@ namespace Keenou
             {
 
                 // GET Dokan DIRECTORY
-                string programDir = Toolbox.GetSoftwareDirectory("Dokan");
+                string programDir = Toolbox.GetSoftwareDirectory(Config.Software.Dokan);
                 if (programDir == null)
                 {
                     return new BooleanResult() { Success = false, Message = "ERROR: Dokan inaccessible!" };

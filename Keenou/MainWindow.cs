@@ -448,25 +448,24 @@ namespace Keenou
         {
 
             // Determine which type of cloud service they want to perform action on 
-            int cloudIndexSelected;
+            Config.Clouds cloudSelected;
             if (rb_cloud_Google.Checked)
             {
-                cloudIndexSelected = Config.CLOUD_GOOGLE;
+                cloudSelected = Config.Clouds.GoogleDrive;
             }
             else if (rb_cloud_OneDrive.Checked)
             {
-                cloudIndexSelected = Config.CLOUD_ONEDRIVE;
+                cloudSelected = Config.Clouds.OneDrive;
             }
             else if (rb_cloud_Dropbox.Checked)
             {
-                cloudIndexSelected = Config.CLOUD_DROPBOX;
+                cloudSelected = Config.Clouds.Dropbox;
             }
             else
             {
-                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Unsupported cloud type selected1" });
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Unsupported cloud type selected!" });
                 return;
             }
-            string cloudServiceType = Config.CLOUD_SERVICES[cloudIndexSelected];
             // * //
 
 
@@ -494,7 +493,7 @@ namespace Keenou
 
             // Microsoft OneDrive will cause problems during migration if it is running, 
             //  so terminate it before we start 
-            if (cloudIndexSelected == Config.CLOUD_ONEDRIVE)
+            if (cloudSelected == Config.Clouds.OneDrive)
             {
                 // Ask user permission to close process first 
                 var confirmResult = MessageBox.Show("OneDrive process must be stopped before migration.", "Should I close it?", MessageBoxButtons.YesNo);
@@ -532,7 +531,7 @@ namespace Keenou
             else
             {
                 // Tell user to turn of syncing for service 
-                var confirmResult = MessageBox.Show("Please remember to disable file syncronization for " + cloudServiceType, "Press OK when you're ready.", MessageBoxButtons.OKCancel);
+                var confirmResult = MessageBox.Show("Please remember to disable file syncronization for " + cloudSelected.ToString(), "Press OK when you're ready.", MessageBoxButtons.OKCancel);
                 if (confirmResult != DialogResult.OK)
                 {
                     ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Please disable file synchronization before migration." });
@@ -564,10 +563,10 @@ namespace Keenou
 
 
             // Figure out where the cloud's folder is on this computer 
-            string cloudPath = EncryptFS.GetCloudServicePath(cloudServiceType);
+            string cloudPath = EncryptFS.GetCloudServicePath(cloudSelected);
             if (cloudPath == null)
             {
-                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot find folder path for cloud service " + cloudServiceType });
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot find folder path for cloud service " + cloudSelected.ToString() });
                 return;
             }
             // * //
@@ -606,7 +605,7 @@ namespace Keenou
             // Create new EncFS
             l_statusLabel.Text = "Creating EncFS drive";
             s_progress.Value = 33;
-            res = EncryptFS.CreateEncryptedFS(guid, cloudPath, targetDrive, masterKey, "Secure " + cloudServiceType, true);
+            res = EncryptFS.CreateEncryptedFS(guid, cloudPath, targetDrive, masterKey, "Secure " + cloudSelected.ToString(), true);
             if (res == null || !res.Success)
             {
                 ReportEncryptCloudError(res);
@@ -664,34 +663,33 @@ namespace Keenou
 
 
             // Determine which type of cloud service they want to perform action on 
-            int cloudIndexSelected;
+            Config.Clouds cloudSelected;
             if (rb_cloud_Google.Checked)
             {
-                cloudIndexSelected = Config.CLOUD_GOOGLE;
+                cloudSelected = Config.Clouds.GoogleDrive;
             }
             else if (rb_cloud_OneDrive.Checked)
             {
-                cloudIndexSelected = Config.CLOUD_ONEDRIVE;
+                cloudSelected = Config.Clouds.OneDrive;
             }
             else if (rb_cloud_Dropbox.Checked)
             {
-                cloudIndexSelected = Config.CLOUD_DROPBOX;
+                cloudSelected = Config.Clouds.Dropbox;
             }
             else
             {
                 MessageBox.Show("ERROR: Unsupported cloud type selected!");
                 return;
             }
-            string cloudServiceType = Config.CLOUD_SERVICES[cloudIndexSelected];
             // * //
 
 
 
             // Figure out where the cloud's folder is on this computer 
-            string cloudPath = EncryptFS.GetCloudServicePath(cloudServiceType);
+            string cloudPath = EncryptFS.GetCloudServicePath(cloudSelected);
             if (cloudPath == null || !Directory.Exists(cloudPath))
             {
-                MessageBox.Show("ERROR: Cannot find folder path for cloud service " + cloudServiceType);
+                MessageBox.Show("ERROR: Cannot find folder path for cloud service " + cloudSelected.ToString());
                 return;
             }
             // * //
@@ -746,7 +744,7 @@ namespace Keenou
 
 
             // Mount their freshly-created encrypted drive 
-            res = EncryptFS.MountEncryptedFS(guid, targetDrive, masterKey, "Secure " + cloudServiceType);
+            res = EncryptFS.MountEncryptedFS(guid, targetDrive, masterKey, "Secure " + cloudSelected.ToString());
             if (res == null || !res.Success)
             {
                 MessageBox.Show(res.Message);
@@ -765,34 +763,33 @@ namespace Keenou
 
 
             // Determine which type of cloud service they want to perform action on 
-            int cloudIndexSelected;
+            Config.Clouds cloudSelected;
             if (rb_cloud_Google.Checked)
             {
-                cloudIndexSelected = Config.CLOUD_GOOGLE;
+                cloudSelected = Config.Clouds.GoogleDrive;
             }
             else if (rb_cloud_OneDrive.Checked)
             {
-                cloudIndexSelected = Config.CLOUD_ONEDRIVE;
+                cloudSelected = Config.Clouds.OneDrive;
             }
             else if (rb_cloud_Dropbox.Checked)
             {
-                cloudIndexSelected = Config.CLOUD_DROPBOX;
+                cloudSelected = Config.Clouds.Dropbox;
             }
             else
             {
                 ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Unsupported cloud type selected1" });
                 return;
             }
-            string cloudServiceType = Config.CLOUD_SERVICES[cloudIndexSelected];
             // * //
 
 
 
             // Figure out where the cloud's folder is on this computer 
-            string cloudPath = EncryptFS.GetCloudServicePath(cloudServiceType);
+            string cloudPath = EncryptFS.GetCloudServicePath(cloudSelected);
             if (cloudPath == null)
             {
-                MessageBox.Show("ERROR: Cannot find folder path for cloud service " + cloudServiceType);
+                MessageBox.Show("ERROR: Cannot find folder path for cloud service " + cloudSelected.ToString());
                 return;
             }
             // * //

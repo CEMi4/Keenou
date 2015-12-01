@@ -138,14 +138,14 @@ namespace Keenou
 
 
         // Return path to software installation chosen //
-        public static string GetSoftwareDirectory(string type)
+        public static string GetSoftwareDirectory(Config.Software type)
         {
             string testLoc = null;
 
             switch (type)
             {
                 // Find VeraCrypt
-                case "VeraCrypt":
+                case Config.Software.VeraCrypt:
 
                     // Prefer local installation over global one 
                     testLoc = Path.Combine(Config.KeenouProgramDirectory, @"VeraCrypt\");
@@ -165,7 +165,7 @@ namespace Keenou
 
 
                 // Find EncFS
-                case "EncFS":
+                case Config.Software.EncFS:
 
                     // Prefer local installation over global one 
                     testLoc = Path.Combine(Config.KeenouProgramDirectory, @"EncFS\");
@@ -185,7 +185,7 @@ namespace Keenou
 
 
                 // Find Dokan
-                case "Dokan":
+                case Config.Software.Dokan:
 
                     // Use global installation
                     testLoc = Path.Combine(Config.x86ProgramDirectory, @"Dokan\DokanLibrary\");

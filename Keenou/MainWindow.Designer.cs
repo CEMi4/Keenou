@@ -60,6 +60,9 @@
             this.g_tabContainer = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.rb_cloud_OneDrive = new System.Windows.Forms.RadioButton();
+            this.rb_cloud_Google = new System.Windows.Forms.RadioButton();
+            this.rb_cloud_Dropbox = new System.Windows.Forms.RadioButton();
             this.b_unmountDropbox = new System.Windows.Forms.Button();
             this.t_cloudPW = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -98,9 +101,6 @@
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.rb_cloud_Dropbox = new System.Windows.Forms.RadioButton();
-            this.rb_cloud_Google = new System.Windows.Forms.RadioButton();
-            this.rb_cloud_OneDrive = new System.Windows.Forms.RadioButton();
             this.g_advanced.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.g_tabContainer.SuspendLayout();
@@ -472,6 +472,40 @@
             this.tabPage4.Text = "Cloud Services";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
+            // rb_cloud_OneDrive
+            // 
+            this.rb_cloud_OneDrive.AutoSize = true;
+            this.rb_cloud_OneDrive.Location = new System.Drawing.Point(301, 23);
+            this.rb_cloud_OneDrive.Name = "rb_cloud_OneDrive";
+            this.rb_cloud_OneDrive.Size = new System.Drawing.Size(70, 17);
+            this.rb_cloud_OneDrive.TabIndex = 11;
+            this.rb_cloud_OneDrive.TabStop = true;
+            this.rb_cloud_OneDrive.Text = "OneDrive";
+            this.rb_cloud_OneDrive.UseVisualStyleBackColor = true;
+            // 
+            // rb_cloud_Google
+            // 
+            this.rb_cloud_Google.AutoSize = true;
+            this.rb_cloud_Google.Location = new System.Drawing.Point(208, 23);
+            this.rb_cloud_Google.Name = "rb_cloud_Google";
+            this.rb_cloud_Google.Size = new System.Drawing.Size(87, 17);
+            this.rb_cloud_Google.TabIndex = 10;
+            this.rb_cloud_Google.TabStop = true;
+            this.rb_cloud_Google.Text = "Google Drive";
+            this.rb_cloud_Google.UseVisualStyleBackColor = true;
+            // 
+            // rb_cloud_Dropbox
+            // 
+            this.rb_cloud_Dropbox.AutoSize = true;
+            this.rb_cloud_Dropbox.Checked = true;
+            this.rb_cloud_Dropbox.Location = new System.Drawing.Point(137, 23);
+            this.rb_cloud_Dropbox.Name = "rb_cloud_Dropbox";
+            this.rb_cloud_Dropbox.Size = new System.Drawing.Size(65, 17);
+            this.rb_cloud_Dropbox.TabIndex = 9;
+            this.rb_cloud_Dropbox.TabStop = true;
+            this.rb_cloud_Dropbox.Text = "Dropbox";
+            this.rb_cloud_Dropbox.UseVisualStyleBackColor = true;
+            // 
             // b_unmountDropbox
             // 
             this.b_unmountDropbox.BackColor = System.Drawing.Color.SteelBlue;
@@ -813,40 +847,6 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.aboutToolStripMenuItem.Text = "&About...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
-            // 
-            // rb_cloud_Dropbox
-            // 
-            this.rb_cloud_Dropbox.AutoSize = true;
-            this.rb_cloud_Dropbox.Checked = true;
-            this.rb_cloud_Dropbox.Location = new System.Drawing.Point(137, 23);
-            this.rb_cloud_Dropbox.Name = "rb_cloud_Dropbox";
-            this.rb_cloud_Dropbox.Size = new System.Drawing.Size(65, 17);
-            this.rb_cloud_Dropbox.TabIndex = 9;
-            this.rb_cloud_Dropbox.TabStop = true;
-            this.rb_cloud_Dropbox.Text = "Dropbox";
-            this.rb_cloud_Dropbox.UseVisualStyleBackColor = true;
-            // 
-            // rb_cloud_Google
-            // 
-            this.rb_cloud_Google.AutoSize = true;
-            this.rb_cloud_Google.Location = new System.Drawing.Point(208, 23);
-            this.rb_cloud_Google.Name = "rb_cloud_Google";
-            this.rb_cloud_Google.Size = new System.Drawing.Size(87, 17);
-            this.rb_cloud_Google.TabIndex = 10;
-            this.rb_cloud_Google.TabStop = true;
-            this.rb_cloud_Google.Text = "Google Drive";
-            this.rb_cloud_Google.UseVisualStyleBackColor = true;
-            // 
-            // rb_cloud_OneDrive
-            // 
-            this.rb_cloud_OneDrive.AutoSize = true;
-            this.rb_cloud_OneDrive.Location = new System.Drawing.Point(301, 23);
-            this.rb_cloud_OneDrive.Name = "rb_cloud_OneDrive";
-            this.rb_cloud_OneDrive.Size = new System.Drawing.Size(70, 17);
-            this.rb_cloud_OneDrive.TabIndex = 11;
-            this.rb_cloud_OneDrive.TabStop = true;
-            this.rb_cloud_OneDrive.Text = "OneDrive";
-            this.rb_cloud_OneDrive.UseVisualStyleBackColor = true;
             // 
             // MainWindow
             // 

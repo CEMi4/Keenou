@@ -37,15 +37,15 @@ namespace Keenou
         public static readonly string x86ProgramDirectory = (Environment.GetEnvironmentVariable("PROGRAMFILES(X86)") ?? Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles));
         public static readonly string KeenouProgramDirectory = Path.Combine(x86ProgramDirectory, @"Keenou\");
 
+        // Software identifiers
+        public enum Software { VeraCrypt, EncFS, Dokan };
+
         // All possible ciphers and hashes supported
         public static readonly string[] CIPHERS = { "AES", "Serpent", "Twofish", "AES(Twofish)", "AES(Twofish(Serpent))", "Serpent(AES)", "Serpent(Twofish(AES))", "Twofish(Serpent)" };
         public static readonly string[] HASHES = { "sha256", "sha512", "whirlpool", "ripemd160" };
 
         // Cloud service providers supported 
-        public static readonly string[] CLOUD_SERVICES = { "Dropbox", "Google Drive", "OneDrive" };
-        public static readonly int CLOUD_DROPBOX = 0;
-        public static readonly int CLOUD_GOOGLE = 1;
-        public static readonly int CLOUD_ONEDRIVE = 2;
+        public enum Clouds { Dropbox, GoogleDrive, OneDrive };
 
         // Registry key roots 
         public static readonly string LOCAL_MACHINE_REG_ROOT = @"HKEY_LOCAL_MACHINE\SOFTWARE\Keenou\";
