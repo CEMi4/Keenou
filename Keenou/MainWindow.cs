@@ -91,10 +91,14 @@ namespace Keenou
         // Internal events  // 
         private void MainWindow_Load(object sender, EventArgs e)
         {
+            // Populate drop downs 
+            c_cipher.Items.AddRange(Config.CIPHERS_S);
+            c_hash.Items.AddRange(Config.HASHES_S);
+
 
             // Choose defaults  
-            c_cipher.SelectedIndex = Config.CIPHER_C_DEFAULT;
-            c_hash.SelectedIndex = Config.HASH_C_DEFAULT;
+            c_cipher.SelectedIndex = (int)Config.CIPHER_C_DEFAULT;
+            c_hash.SelectedIndex = (int)Config.HASH_C_DEFAULT;
 
 
             // Fill out user name and SID

@@ -257,15 +257,6 @@
             this.c_cipher.BackColor = System.Drawing.Color.AliceBlue;
             this.c_cipher.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.c_cipher.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.c_cipher.Items.AddRange(new object[] {
-            "AES",
-            "Serpent",
-            "Twofish",
-            "AES(Twofish) ",
-            "AES(Twofish(Serpent)) ",
-            "Serpent(AES) ",
-            "Serpent(Twofish(AES)) ",
-            "Twofish(Serpent) "});
             this.c_cipher.Location = new System.Drawing.Point(293, 75);
             this.c_cipher.Name = "c_cipher";
             this.c_cipher.Size = new System.Drawing.Size(121, 21);
@@ -285,11 +276,6 @@
             this.c_hash.BackColor = System.Drawing.Color.AliceBlue;
             this.c_hash.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.c_hash.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.c_hash.Items.AddRange(new object[] {
-            "sha256",
-            "sha512",
-            "whirlpool",
-            "ripemd160"});
             this.c_hash.Location = new System.Drawing.Point(99, 75);
             this.c_hash.Name = "c_hash";
             this.c_hash.Size = new System.Drawing.Size(121, 21);
