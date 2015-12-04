@@ -227,7 +227,7 @@ namespace Keenou
                 {
                     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"robocopy \"" + sourceFolder + "\" " + targetDrive + ":\\ /zb /MIR /copyall /sl /xj /r:0\"";
+                    startInfo.Arguments = "/C \"robocopy \"" + sourceFolder + "\" " + targetDrive + ":\\ /zb /MIR /copyall /sl /xj /r:3 /w:10\"";
                     process.StartInfo = startInfo;
                     process.Start(); // this may take a while! 
                     process.WaitForExit();

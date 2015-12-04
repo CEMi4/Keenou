@@ -467,7 +467,7 @@ namespace Keenou
                 }
             }
 
-            // Then clear files out of old folder 
+            // Then copy subfolder children over 
             using (Process process = new Process())
             {
 
@@ -476,7 +476,7 @@ namespace Keenou
                 {
                     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"FOR /D %i IN (\"" + sourceFolder + "\\*\") DO ROBOCOPY /MOVE /MIR /sl /xj /r:0 \"%i\" \"" + targetDrive + "\\%~nxi\" \"";
+                    startInfo.Arguments = "/C \"FOR /D %i IN (\"" + sourceFolder + "\\*\") DO ROBOCOPY /MOVE /MIR /sl /xj /r:3 /w:10 \"%i\" \"" + targetDrive + "\\%~nxi\" \"";
                     process.StartInfo = startInfo;
                     process.Start(); // this may take a while! 
                     process.WaitForExit();
@@ -518,7 +518,7 @@ namespace Keenou
                 {
                     startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startInfo.FileName = "cmd.exe";
-                    startInfo.Arguments = "/C \"robocopy \"" + sourceFolder + "\" " + targetDrive + " /MIR /sl /xj /r:0\"";
+                    startInfo.Arguments = "/C \"robocopy \"" + sourceFolder + "\" " + targetDrive + " /MIR /sl /xj /r:3 /w:10\"";
                     process.StartInfo = startInfo;
                     process.Start(); // this may take a while! 
                     process.WaitForExit();
