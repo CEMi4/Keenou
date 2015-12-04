@@ -60,18 +60,10 @@
             this.g_tabContainer = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.b_cloudAction = new System.Windows.Forms.Button();
             this.rb_cloud_OneDrive = new System.Windows.Forms.RadioButton();
             this.rb_cloud_Google = new System.Windows.Forms.RadioButton();
             this.rb_cloud_Dropbox = new System.Windows.Forms.RadioButton();
-            this.b_unmountDropbox = new System.Windows.Forms.Button();
-            this.t_cloudPW = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.t_cloudPWConf = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.l_mountDropboxPW = new System.Windows.Forms.Label();
-            this.t_mountDropboxPW = new System.Windows.Forms.TextBox();
-            this.b_mountDropbox = new System.Windows.Forms.Button();
-            this.b_encryptCloud = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.g_PersonalFolderFlowLayout = new System.Windows.Forms.FlowLayoutPanel();
@@ -153,7 +145,7 @@
             this.t_volumeSize.Location = new System.Drawing.Point(301, 165);
             this.t_volumeSize.Name = "t_volumeSize";
             this.t_volumeSize.Size = new System.Drawing.Size(100, 20);
-            this.t_volumeSize.TabIndex = 11;
+            this.t_volumeSize.TabIndex = 2;
             // 
             // label1
             // 
@@ -176,7 +168,7 @@
             this.b_encrypt.Location = new System.Drawing.Point(422, 315);
             this.b_encrypt.Name = "b_encrypt";
             this.b_encrypt.Size = new System.Drawing.Size(75, 23);
-            this.b_encrypt.TabIndex = 10;
+            this.b_encrypt.TabIndex = 3;
             this.b_encrypt.Text = "Encrypt";
             this.b_encrypt.UseVisualStyleBackColor = false;
             this.b_encrypt.Click += new System.EventHandler(this.b_encrypt_Click);
@@ -260,7 +252,7 @@
             this.c_cipher.Location = new System.Drawing.Point(293, 75);
             this.c_cipher.Name = "c_cipher";
             this.c_cipher.Size = new System.Drawing.Size(121, 21);
-            this.c_cipher.TabIndex = 0;
+            this.c_cipher.TabIndex = 6;
             // 
             // l_cipher
             // 
@@ -279,7 +271,7 @@
             this.c_hash.Location = new System.Drawing.Point(99, 75);
             this.c_hash.Name = "c_hash";
             this.c_hash.Size = new System.Drawing.Size(121, 21);
-            this.c_hash.TabIndex = 2;
+            this.c_hash.TabIndex = 5;
             // 
             // l_sid
             // 
@@ -330,7 +322,7 @@
             this.t_passwordConf.Location = new System.Drawing.Point(301, 108);
             this.t_passwordConf.Name = "t_passwordConf";
             this.t_passwordConf.Size = new System.Drawing.Size(183, 20);
-            this.t_passwordConf.TabIndex = 2;
+            this.t_passwordConf.TabIndex = 1;
             this.t_passwordConf.UseSystemPasswordChar = true;
             // 
             // l_password
@@ -438,18 +430,10 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.b_cloudAction);
             this.tabPage4.Controls.Add(this.rb_cloud_OneDrive);
             this.tabPage4.Controls.Add(this.rb_cloud_Google);
             this.tabPage4.Controls.Add(this.rb_cloud_Dropbox);
-            this.tabPage4.Controls.Add(this.b_unmountDropbox);
-            this.tabPage4.Controls.Add(this.t_cloudPW);
-            this.tabPage4.Controls.Add(this.label3);
-            this.tabPage4.Controls.Add(this.t_cloudPWConf);
-            this.tabPage4.Controls.Add(this.label4);
-            this.tabPage4.Controls.Add(this.l_mountDropboxPW);
-            this.tabPage4.Controls.Add(this.t_mountDropboxPW);
-            this.tabPage4.Controls.Add(this.b_mountDropbox);
-            this.tabPage4.Controls.Add(this.b_encryptCloud);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
@@ -457,6 +441,22 @@
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Cloud Services";
             this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // b_cloudAction
+            // 
+            this.b_cloudAction.BackColor = System.Drawing.Color.SteelBlue;
+            this.b_cloudAction.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.b_cloudAction.FlatAppearance.MouseDownBackColor = System.Drawing.Color.CornflowerBlue;
+            this.b_cloudAction.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SteelBlue;
+            this.b_cloudAction.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.b_cloudAction.ForeColor = System.Drawing.Color.White;
+            this.b_cloudAction.Location = new System.Drawing.Point(183, 58);
+            this.b_cloudAction.Name = "b_cloudAction";
+            this.b_cloudAction.Size = new System.Drawing.Size(123, 23);
+            this.b_cloudAction.TabIndex = 12;
+            this.b_cloudAction.Text = "Go!";
+            this.b_cloudAction.UseVisualStyleBackColor = false;
+            this.b_cloudAction.Click += new System.EventHandler(this.b_cloudAction_Click);
             // 
             // rb_cloud_OneDrive
             // 
@@ -491,108 +491,6 @@
             this.rb_cloud_Dropbox.TabStop = true;
             this.rb_cloud_Dropbox.Text = "Dropbox";
             this.rb_cloud_Dropbox.UseVisualStyleBackColor = true;
-            // 
-            // b_unmountDropbox
-            // 
-            this.b_unmountDropbox.BackColor = System.Drawing.Color.SteelBlue;
-            this.b_unmountDropbox.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
-            this.b_unmountDropbox.FlatAppearance.MouseDownBackColor = System.Drawing.Color.CornflowerBlue;
-            this.b_unmountDropbox.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SteelBlue;
-            this.b_unmountDropbox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.b_unmountDropbox.ForeColor = System.Drawing.Color.White;
-            this.b_unmountDropbox.Location = new System.Drawing.Point(344, 210);
-            this.b_unmountDropbox.Name = "b_unmountDropbox";
-            this.b_unmountDropbox.Size = new System.Drawing.Size(123, 23);
-            this.b_unmountDropbox.TabIndex = 8;
-            this.b_unmountDropbox.Text = "Unmount";
-            this.b_unmountDropbox.UseVisualStyleBackColor = false;
-            this.b_unmountDropbox.Click += new System.EventHandler(this.b_unmountDropbox_Click);
-            // 
-            // t_cloudPW
-            // 
-            this.t_cloudPW.BackColor = System.Drawing.Color.AliceBlue;
-            this.t_cloudPW.Location = new System.Drawing.Point(140, 61);
-            this.t_cloudPW.Name = "t_cloudPW";
-            this.t_cloudPW.Size = new System.Drawing.Size(183, 20);
-            this.t_cloudPW.TabIndex = 4;
-            this.t_cloudPW.UseSystemPasswordChar = true;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(78, 64);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(56, 13);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "Password:";
-            // 
-            // t_cloudPWConf
-            // 
-            this.t_cloudPWConf.BackColor = System.Drawing.Color.AliceBlue;
-            this.t_cloudPWConf.Location = new System.Drawing.Point(140, 87);
-            this.t_cloudPWConf.Name = "t_cloudPWConf";
-            this.t_cloudPWConf.Size = new System.Drawing.Size(183, 20);
-            this.t_cloudPWConf.TabIndex = 6;
-            this.t_cloudPWConf.UseSystemPasswordChar = true;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(35, 90);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(99, 13);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "Password (confirm):";
-            // 
-            // l_mountDropboxPW
-            // 
-            this.l_mountDropboxPW.AutoSize = true;
-            this.l_mountDropboxPW.Location = new System.Drawing.Point(78, 155);
-            this.l_mountDropboxPW.Name = "l_mountDropboxPW";
-            this.l_mountDropboxPW.Size = new System.Drawing.Size(56, 13);
-            this.l_mountDropboxPW.TabIndex = 3;
-            this.l_mountDropboxPW.Text = "Password:";
-            // 
-            // t_mountDropboxPW
-            // 
-            this.t_mountDropboxPW.BackColor = System.Drawing.Color.AliceBlue;
-            this.t_mountDropboxPW.Location = new System.Drawing.Point(140, 153);
-            this.t_mountDropboxPW.Name = "t_mountDropboxPW";
-            this.t_mountDropboxPW.Size = new System.Drawing.Size(183, 20);
-            this.t_mountDropboxPW.TabIndex = 2;
-            this.t_mountDropboxPW.UseSystemPasswordChar = true;
-            // 
-            // b_mountDropbox
-            // 
-            this.b_mountDropbox.BackColor = System.Drawing.Color.SteelBlue;
-            this.b_mountDropbox.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
-            this.b_mountDropbox.FlatAppearance.MouseDownBackColor = System.Drawing.Color.CornflowerBlue;
-            this.b_mountDropbox.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SteelBlue;
-            this.b_mountDropbox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.b_mountDropbox.ForeColor = System.Drawing.Color.White;
-            this.b_mountDropbox.Location = new System.Drawing.Point(344, 150);
-            this.b_mountDropbox.Name = "b_mountDropbox";
-            this.b_mountDropbox.Size = new System.Drawing.Size(123, 23);
-            this.b_mountDropbox.TabIndex = 1;
-            this.b_mountDropbox.Text = "Mount";
-            this.b_mountDropbox.UseVisualStyleBackColor = false;
-            this.b_mountDropbox.Click += new System.EventHandler(this.b_mountDropbox_Click);
-            // 
-            // b_encryptCloud
-            // 
-            this.b_encryptCloud.BackColor = System.Drawing.Color.SteelBlue;
-            this.b_encryptCloud.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
-            this.b_encryptCloud.FlatAppearance.MouseDownBackColor = System.Drawing.Color.CornflowerBlue;
-            this.b_encryptCloud.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SteelBlue;
-            this.b_encryptCloud.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.b_encryptCloud.ForeColor = System.Drawing.Color.White;
-            this.b_encryptCloud.Location = new System.Drawing.Point(344, 87);
-            this.b_encryptCloud.Name = "b_encryptCloud";
-            this.b_encryptCloud.Size = new System.Drawing.Size(123, 23);
-            this.b_encryptCloud.TabIndex = 0;
-            this.b_encryptCloud.Text = "Encrypt";
-            this.b_encryptCloud.UseVisualStyleBackColor = false;
-            this.b_encryptCloud.Click += new System.EventHandler(this.b_encryptCloud_Click);
             // 
             // tabPage3
             // 
@@ -929,18 +827,10 @@
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.Button b_encryptCloud;
-        private System.Windows.Forms.Button b_mountDropbox;
-        private System.Windows.Forms.Label l_mountDropboxPW;
-        private System.Windows.Forms.TextBox t_mountDropboxPW;
-        protected System.Windows.Forms.TextBox t_cloudPW;
-        private System.Windows.Forms.Label label3;
-        protected System.Windows.Forms.TextBox t_cloudPWConf;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Button b_unmountDropbox;
         private System.Windows.Forms.RadioButton rb_cloud_OneDrive;
         private System.Windows.Forms.RadioButton rb_cloud_Google;
         private System.Windows.Forms.RadioButton rb_cloud_Dropbox;
+        private System.Windows.Forms.Button b_cloudAction;
     }
 }
 

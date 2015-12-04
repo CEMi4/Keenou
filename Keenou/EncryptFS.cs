@@ -24,6 +24,7 @@ using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 using System.Data.SQLite;
+using System.Management;
 
 namespace Keenou
 {
@@ -46,6 +47,96 @@ namespace Keenou
 
     class EncryptFS
     {
+
+        // Return a list of all EncFS instances that are currently mounted //
+        public static Dictionary<string, string> GetAllMountedEncFS(string filter = null)
+        {
+            Dictionary<string, string> ret = new Dictionary<string, string>();
+
+            try
+            {
+                using (ManagementClass diskClass = new ManagementClass("Win32_LogicalDisk"))
+                {
+                    using (ManagementObjectCollection mocDisks = diskClass.GetInstances())
+                    {
+                        // Loop through all of the logical disks 
+                        foreach (ManagementObject moDisk in mocDisks)
+                        {
+                            string drive = null, guid = null;
+
+
+                            // Determine the drive letter 
+                            string driveRaw = moDisk.GetPropertyValue("DeviceID").ToString();
+                            if (driveRaw == null || driveRaw.Length != 2 || !driveRaw.EndsWith(":"))
+                            {
+                                continue;
+                            }
+                            drive = driveRaw.Substring(0, 1);
+
+
+                            // Skip if this isn't the one they want (if specified) 
+                            if (filter != null && drive.ToLower() != filter.ToLower())
+                            {
+                                continue;
+                            }
+
+
+                            // If this is not an EncFS mount, skip it
+                            string fs = (moDisk.GetPropertyValue("FileSystem") ?? string.Empty).ToString();
+                            if (!fs.ToLower().Contains("encfs"))
+                            {
+                                continue;
+                            }
+
+
+                            // Loop through all saved EncFS drives looking for ones matching this one 
+                            RegistryKey OurKey = Registry.CurrentUser;
+                            OurKey = OurKey.OpenSubKey(@"Software\Keenou\drives");
+                            if (OurKey != null)
+                            {
+                                foreach (string Keyname in OurKey.GetSubKeyNames())
+                                {
+                                    RegistryKey key = OurKey.OpenSubKey(Keyname);
+                                    if (key.GetValue("encDrive") != null && key.GetValue("encDrive").ToString().ToLower() == drive.ToLower())
+                                    {
+                                        // Found a match
+                                        guid = Keyname.ToString();
+                                        break;
+                                    }
+                                }
+                            }
+                            // TODO: above code can be streamlined in future instead of scanning registry each time 
+
+
+                            // Save this result if it is valid 
+                            // If guid is null, it might be an EncFS not managed by Keenou 
+                            if (guid != null)
+                            {
+                                ret.Add(guid, drive);
+                            }
+
+
+                            // If filter was given, we've matched it (so stop!) 
+                            if (filter != null)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return ret;
+        }
+        // * //
+
+
+
+
 
         // Get folder path for cloud service //
         public static string GetCloudServicePath(Config.Clouds type)
@@ -168,6 +259,35 @@ namespace Keenou
 
 
 
+        // Invalidate a drive letter (it is no longer valid) //
+        public static BooleanResult InvalidateDrive(string drive)
+        {
+
+            // Loop through all drives looking for ones matching input 
+            RegistryKey OurKey = Registry.CurrentUser;
+            OurKey = OurKey.OpenSubKey(@"Software\Keenou\drives");
+            if (OurKey != null)
+            {
+                foreach (string Keyname in OurKey.GetSubKeyNames())
+                {
+                    RegistryKey key = OurKey.OpenSubKey(Keyname);
+                    if (key.GetValue("encDrive") != null && key.GetValue("encDrive").ToString().ToLower() == drive.ToLower())
+                    {
+                        // Found a match!  Invalidate it 
+                        string guid = Keyname.ToString();
+                        Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encDrive", string.Empty);
+                    }
+                }
+            }
+
+            return new BooleanResult() { Success = true };
+        }
+        // * //
+
+
+
+
+
         // Create new encrypted filesystem //
         public static BooleanResult CreateEncryptedFS(string guid, string volumeLoc, string targetDrive, string masterKey, string label, bool keepMounted = false)
         {
@@ -258,6 +378,9 @@ namespace Keenou
                         }
                         else
                         {
+                            // Invalidate all other EncFS instances that still claim to be using this drive 
+                            EncryptFS.InvalidateDrive(targetDrive);
+
                             // Save where we mounted the encrypted volume 
                             Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encDrive", targetDrive);
                         }
@@ -368,6 +491,9 @@ namespace Keenou
                     }
 
 
+                    // Invalidate all other EncFS instances that still claim to be using this drive 
+                    EncryptFS.InvalidateDrive(targetDrive);
+
                     // Save where we mounted the encrypted volume 
                     Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encDrive", targetDrive);
 
@@ -419,8 +545,14 @@ namespace Keenou
                     startInfo.Arguments = "/C \"\"" + programDir + "dokanctl.exe\"  /u \"" + targetDrive + ":\"\"";
                     process.StartInfo = startInfo;
                     process.Start();
-
                     process.WaitForExit();
+
+                    // Ensure no errors were thrown (unmount status 0 = error, 1 = unmounted) 
+                    if (process.ExitCode != 1)
+                    {
+                        return new BooleanResult() { Success = false, Message = "ERROR: Error while unmounting! " + process.ExitCode };
+                    }
+
                 }
                 catch (Exception err)
                 {
@@ -428,6 +560,9 @@ namespace Keenou
                 }
 
             }
+
+            // Invalidate EncFS instances that claim to be using this drive 
+            EncryptFS.InvalidateDrive(targetDrive);
 
             return new BooleanResult() { Success = true };
         }
@@ -440,7 +575,7 @@ namespace Keenou
         // Copy files over from old folder to new, enc folder //
         public static BooleanResult MoveDataFromFolder(string sourceFolder, string targetDrive)
         {
-            // First copy files over
+            // First copy root files over
             using (Process process = new Process())
             {
 

@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Security;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Keenou
 {
@@ -448,9 +449,8 @@ namespace Keenou
             s_progress.Value = 0;
             s_progress.Visible = false;
         }
-        private void b_encryptCloud_Click(object sender, EventArgs e)
+        private void b_cloudAction_Click(object sender, EventArgs e)
         {
-
             // Determine which type of cloud service they want to perform action on 
             Config.Clouds cloudSelected;
             if (rb_cloud_Google.Checked)
@@ -474,11 +474,109 @@ namespace Keenou
 
 
 
-            // Sanity checks //
-            if (t_cloudPW.Text.Length < Config.MIN_PASSWORD_LEN || !string.Equals(t_cloudPW.Text, t_cloudPWConf.Text))
+            // Figure out where the cloud's folder is on this computer //
+            string cloudPath = EncryptFS.GetCloudServicePath(cloudSelected);
+            if (cloudPath == null)
             {
-                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "Passwords provided must match and be non-zero in length!" });
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot determine the location of your cloud service!" });
                 return;
+            }
+            // * //
+
+
+
+            // Find guid of desired cloud folder //
+            string guid = null;
+            RegistryKey OurKey = Registry.CurrentUser;
+            OurKey = OurKey.OpenSubKey(@"Software\Keenou\drives");
+            if (OurKey != null)
+            {
+                foreach (string Keyname in OurKey.GetSubKeyNames())
+                {
+                    RegistryKey key = OurKey.OpenSubKey(Keyname);
+                    if (key.GetValue("encContainerLoc") != null && key.GetValue("encContainerLoc").ToString() == cloudPath)
+                    {
+                        guid = Keyname.ToString();
+                    }
+                }
+            }
+            // * //
+
+
+            // Helper result object
+            BooleanResult res = null;
+
+
+            // If there is no registered guid yet, then it's the first time (set up) // 
+            if (guid == null)
+            {
+                res = this.encryptCloud(cloudSelected, cloudPath);
+                if (res == null || !res.Success)
+                {
+                    ReportEncryptCloudError(res);
+                    return;
+                }
+                return;
+            }
+            // * //
+
+
+
+            // Check to see if it is mounted //
+            Dictionary<string, string> mounts = EncryptFS.GetAllMountedEncFS();
+            if (mounts == null)
+            {
+                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot figure out which EncFS instances are mounted!" });
+                return;
+            }
+            if (mounts.ContainsKey(guid))
+            {
+                // already mounted -- unmount 
+                res = this.unmountCloud(guid);
+                if (res == null || !res.Success)
+                {
+                    ReportEncryptCloudError(res);
+                    return;
+                }
+                return;
+            }
+            else
+            {
+                // not yet mounted -- mount 
+                res = this.mountCloud(guid, cloudSelected, cloudPath);
+                if (res == null || !res.Success)
+                {
+                    ReportEncryptCloudError(res);
+                    return;
+                }
+                return;
+            }
+            // * //
+
+
+            // We should never make it to here 
+        }
+
+        private BooleanResult encryptCloud(Config.Clouds cloudSelected, string cloudPath)
+        {
+
+            // Get new password from user //
+            var promptPassword = new PromptNewPassword();
+            if (promptPassword.ShowDialog() != DialogResult.OK)
+            {
+                // Cancelled 
+                return new BooleanResult() { Success = true };
+            }
+            string password = promptPassword.CloudPassword;
+            string passwordConf = promptPassword.CloudPasswordConfirm;
+            // * //
+
+
+
+            // Sanity checks //
+            if (password.Length < Config.MIN_PASSWORD_LEN || !string.Equals(password, passwordConf))
+            {
+                return new BooleanResult() { Success = false, Message = "Passwords provided must match and be non-zero in length!" };
             }
             // * //
 
@@ -488,8 +586,7 @@ namespace Keenou
             string targetDrive = Toolbox.GetNextFreeDriveLetter();
             if (targetDrive == null)
             {
-                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot find a free drive letter!" });
-                return;
+                return new BooleanResult() { Success = false, Message = "ERROR: Cannot find a free drive letter!" };
             }
             // * //
 
@@ -503,8 +600,7 @@ namespace Keenou
                 var confirmResult = MessageBox.Show("OneDrive process must be stopped before migration.", "Should I close it?", MessageBoxButtons.YesNo);
                 if (confirmResult != DialogResult.Yes)
                 {
-                    ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Please close OneDrive application before migration." });
-                    return;
+                    return new BooleanResult() { Success = false, Message = "ERROR: Please close OneDrive application before migration." };
                 }
 
 
@@ -526,8 +622,7 @@ namespace Keenou
                         processes[0].WaitForExit(5000);
                         if (!processes[0].HasExited)
                         {
-                            ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Could not close OneDrive application!" });
-                            return;
+                            return new BooleanResult() { Success = false, Message = "ERROR: Could not close OneDrive application!" };
                         }
                     }
                 }
@@ -538,8 +633,7 @@ namespace Keenou
                 var confirmResult = MessageBox.Show("Please remember to disable file syncronization for " + cloudSelected.ToString(), "Press OK when you're ready.", MessageBoxButtons.OKCancel);
                 if (confirmResult != DialogResult.OK)
                 {
-                    ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Please disable file synchronization before migration." });
-                    return;
+                    return new BooleanResult() { Success = false, Message = "ERROR: Please disable file synchronization before migration." };
                 }
             }
             // * //
@@ -566,98 +660,148 @@ namespace Keenou
             BooleanResult res = null;
 
 
-            // Figure out where the cloud's folder is on this computer 
-            string cloudPath = EncryptFS.GetCloudServicePath(cloudSelected);
-            if (cloudPath == null)
+
+            // Run work-heavy tasks in a separate thread 
+            CancellationTokenSource cts = new CancellationTokenSource();
+            CancellationToken cancelToken = cts.Token;
+            var workerThread = Task.Factory.StartNew(() =>
             {
-                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot find folder path for cloud service " + cloudSelected.ToString() });
-                return;
-            }
-            // * //
+
+                // Update UI 
+                this.Invoke((MethodInvoker)delegate
+                {
+                    s_progress.Value = 25;
+                    l_statusLabel.Text = "Generating encryption key ...";
+                    Application.DoEvents();
+                    s_progress.ProgressBar.Refresh();
+                });
+
+                // Generate master key & protect with user password //
+                string masterKey = Toolbox.GenerateKey(Config.MASTERKEY_PW_CHAR_COUNT);
+                string encMasterKey = Toolbox.PasswordEncryptKey(masterKey, password);
+
+                // Ensure we got good stuff back 
+                if (masterKey == null)
+                {
+                    return new BooleanResult() { Success = false, Message = "ERROR: Cannot generate master key!" };
+                }
+                if (encMasterKey == null)
+                {
+                    return new BooleanResult() { Success = false, Message = "ERROR: Cannot encrypt master key!" };
+                }
+
+                Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encHeader", encMasterKey);
+                // * //
 
 
 
-            // Generate master key & protect with user password //
-            l_statusLabel.Text = "Generating encryption key ...";
-            Application.DoEvents();
+                // Generate temporary location to hold enc data
+                string tempFolderName = cloudPath + ".backup-" + Path.GetRandomFileName();
+                Directory.CreateDirectory(tempFolderName);
 
-            string masterKey = Toolbox.GenerateKey(Config.MASTERKEY_PW_CHAR_COUNT);
-            string encMasterKey = Toolbox.PasswordEncryptKey(masterKey, t_cloudPW.Text);
 
-            // Ensure we got good stuff back 
-            if (masterKey == null)
+
+                // Update UI 
+                this.Invoke((MethodInvoker)delegate
+                {
+                    s_progress.Value = 50;
+                    l_statusLabel.Text = "Creating EncFS drive";
+                    Application.DoEvents();
+                    s_progress.ProgressBar.Refresh();
+                });
+
+                // Create new EncFS
+                res = EncryptFS.CreateEncryptedFS(guid, cloudPath, targetDrive, masterKey, "Secure " + cloudSelected.ToString(), true);
+                if (res == null || !res.Success)
+                {
+                    return res;
+                }
+                // * //
+
+
+
+                // Update UI 
+                this.Invoke((MethodInvoker)delegate
+                {
+                    s_progress.Value = 75;
+                    l_statusLabel.Text = "Copying data from Cloud folder to encrypted drive";
+                    Application.DoEvents();
+                    s_progress.ProgressBar.Refresh();
+                });
+
+                // Copy cloud data over 
+                res = EncryptFS.MoveDataFromFolder(cloudPath, tempFolderName);
+                if (res == null || !res.Success)
+                {
+                    return res;
+                }
+
+                res = EncryptFS.CopyDataFromFolder(tempFolderName, targetDrive + ":\\");
+                if (res == null || !res.Success)
+                {
+                    return res;
+                }
+                // * //
+
+
+                return new BooleanResult() { Success = true };
+
+            }, TaskCreationOptions.LongRunning);
+
+
+            // When threaded tasks finish, check for errors and continue (if appropriate) 
+            workerThread.ContinueWith((antecedent) =>
             {
-                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot generate master key!" });
-                return;
-            }
-            if (encMasterKey == null)
-            {
-                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Cannot encrypt master key!" });
-                return;
-            }
-
-            Registry.SetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encHeader", encMasterKey);
-            // * //
+                // Block until we get a result back from previous thread
+                BooleanResult result = antecedent.Result;
 
 
-
-            // Generate temporary location to hold enc data
-            string tempFolderName = cloudPath + ".backup-" + Path.GetRandomFileName();
-            Directory.CreateDirectory(tempFolderName);
-
-
-            // Create new EncFS
-            l_statusLabel.Text = "Creating EncFS drive";
-            s_progress.Value = 33;
-            res = EncryptFS.CreateEncryptedFS(guid, cloudPath, targetDrive, masterKey, "Secure " + cloudSelected.ToString(), true);
-            if (res == null || !res.Success)
-            {
-                ReportEncryptCloudError(res);
-                return;
-            }
-            // * //
-
-
-            // Copy cloud data over 
-            l_statusLabel.Text = "Copying data from Cloud folder to encrypted drive";
-            s_progress.Value = 66;
-            res = EncryptFS.MoveDataFromFolder(cloudPath, tempFolderName);
-            if (res == null || !res.Success)
-            {
-                ReportEncryptCloudError(res);
-                return;
-            }
-
-            res = EncryptFS.CopyDataFromFolder(tempFolderName, targetDrive + ":\\");
-            if (res == null || !res.Success)
-            {
-                ReportEncryptCloudError(res);
-                return;
-            }
-            // * //
+                // Check if there was an error in previous thread
+                if (result == null || !result.Success)
+                {
+                    ReportEncryptCloudError(result);
+                    return;
+                }
 
 
 
-            // Re-enable everything //
-            this.Cursor = Cursors.Default;
-            g_tabContainer.Controls[1].Enabled = true;
-            l_statusLabel.Text = "Successfully moved your cloud folder!";
-            s_progress.Value = 0;
-            s_progress.Visible = false;
-            Application.DoEvents();
-            // * //
+                // Re-enable everything //
+                this.Cursor = Cursors.Default;
+                g_tabContainer.Controls[1].Enabled = true;
+                l_statusLabel.Text = "Successfully moved your cloud folder!";
+                s_progress.Value = 0;
+                s_progress.Visible = false;
+                Application.DoEvents();
+                // * //
 
+            },
+            cancelToken,
+            TaskContinuationOptions.OnlyOnRanToCompletion,
+            TaskScheduler.FromCurrentSynchronizationContext()
+            );
+
+
+            return new BooleanResult() { Success = true };
         }
 
-        private void b_mountDropbox_Click(object sender, EventArgs e)
+        private BooleanResult mountCloud(string guid, Config.Clouds cloudSelected, string cloudPath)
         {
+            // Get password from user //
+            var promptPassword = new PromptPassword();
+            if (promptPassword.ShowDialog() != DialogResult.OK)
+            {
+                // Cancelled 
+                return new BooleanResult() { Success = true };
+            }
+            string password = promptPassword.CloudPassword;
+            // * //
+
 
             // GET NEXT FREE DRIVE LETTER 
             string targetDrive = Toolbox.GetNextFreeDriveLetter();
             if (targetDrive == null)
             {
-                MessageBox.Show("ERROR: Cannot find a free drive letter!");
-                return;
+                return new BooleanResult() { Success = false, Message = "ERROR: Cannot find a free drive letter!" };
             }
             // * //
 
@@ -666,61 +810,16 @@ namespace Keenou
             BooleanResult res = null;
 
 
-            // Determine which type of cloud service they want to perform action on 
-            Config.Clouds cloudSelected;
-            if (rb_cloud_Google.Checked)
-            {
-                cloudSelected = Config.Clouds.GoogleDrive;
-            }
-            else if (rb_cloud_OneDrive.Checked)
-            {
-                cloudSelected = Config.Clouds.OneDrive;
-            }
-            else if (rb_cloud_Dropbox.Checked)
-            {
-                cloudSelected = Config.Clouds.Dropbox;
-            }
-            else
-            {
-                MessageBox.Show("ERROR: Unsupported cloud type selected!");
-                return;
-            }
-            // * //
 
-
-
-            // Figure out where the cloud's folder is on this computer 
-            string cloudPath = EncryptFS.GetCloudServicePath(cloudSelected);
-            if (cloudPath == null || !Directory.Exists(cloudPath))
+            // Check to see if it is already mounted //
+            Dictionary<string, string> mounts = EncryptFS.GetAllMountedEncFS();
+            if (mounts == null)
             {
-                MessageBox.Show("ERROR: Cannot find folder path for cloud service " + cloudSelected.ToString());
-                return;
+                return new BooleanResult() { Success = false, Message = "ERROR: Cannot figure out which EncFS instances are mounted!" };
             }
-            // * //
-
-
-
-            // Find guid of desired cloud folder //
-            string guid = null;
-            RegistryKey OurKey = Registry.CurrentUser;
-            OurKey = OurKey.OpenSubKey(@"Software\Keenou\drives");
-            if (OurKey == null)
+            if (mounts.ContainsKey(guid))
             {
-                MessageBox.Show("Cannot find encrypted cloud folder!");
-                return;
-            }
-            foreach (string Keyname in OurKey.GetSubKeyNames())
-            {
-                RegistryKey key = OurKey.OpenSubKey(Keyname);
-                if (key.GetValue("encContainerLoc").ToString() == cloudPath)
-                {
-                    guid = Keyname.ToString();
-                }
-            }
-            if (guid == null)
-            {
-                MessageBox.Show("Cannot find encrypted cloud folder guid!");
-                return;
+                return new BooleanResult() { Success = false, Message = "This encrypted folder appears to already be mounted!" };
             }
             // * //
 
@@ -731,17 +830,15 @@ namespace Keenou
             string encHeader = (string)Registry.GetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encHeader", null);
             if (string.IsNullOrEmpty(encHeader))
             {
-                MessageBox.Show("User's header information could not be found.");
-                return;
+                return new BooleanResult() { Success = false, Message = "ERROR: User's header information could not be found!" };
             }
 
-            masterKey = Toolbox.PasswordDecryptKey(encHeader, this.t_mountDropboxPW.Text);
+            masterKey = Toolbox.PasswordDecryptKey(encHeader, password);
 
             // Make sure we got a key back 
             if (masterKey == null)
             {
-                MessageBox.Show("Failed to decrypt master key!");
-                return;
+                return new BooleanResult() { Success = false, Message = "ERROR: Failed to decrypt master key!" };
             }
             // * //
 
@@ -751,99 +848,55 @@ namespace Keenou
             res = EncryptFS.MountEncryptedFS(guid, targetDrive, masterKey, "Secure " + cloudSelected.ToString());
             if (res == null || !res.Success)
             {
-                MessageBox.Show(res.Message);
-                return;
+                return res;
             }
             // * //
 
 
+            return new BooleanResult() { Success = true };
         }
 
-        private void b_unmountDropbox_Click(object sender, EventArgs e)
+        private BooleanResult unmountCloud(string guid)
         {
 
             // Helper result object
             BooleanResult res = null;
 
 
-            // Determine which type of cloud service they want to perform action on 
-            Config.Clouds cloudSelected;
-            if (rb_cloud_Google.Checked)
+            // Check to see if it is mounted //
+            Dictionary<string, string> mounts = EncryptFS.GetAllMountedEncFS();
+            if (mounts == null)
             {
-                cloudSelected = Config.Clouds.GoogleDrive;
+                return new BooleanResult() { Success = false, Message = "ERROR: Cannot figure out which EncFS instances are mounted!" };
             }
-            else if (rb_cloud_OneDrive.Checked)
+            if (!mounts.ContainsKey(guid))
             {
-                cloudSelected = Config.Clouds.OneDrive;
-            }
-            else if (rb_cloud_Dropbox.Checked)
-            {
-                cloudSelected = Config.Clouds.Dropbox;
-            }
-            else
-            {
-                ReportEncryptCloudError(new BooleanResult() { Success = false, Message = "ERROR: Unsupported cloud type selected1" });
-                return;
+                return new BooleanResult() { Success = false, Message = "This encrypted folder does not appear to be mounted!" };
             }
             // * //
 
-
-
-            // Figure out where the cloud's folder is on this computer 
-            string cloudPath = EncryptFS.GetCloudServicePath(cloudSelected);
-            if (cloudPath == null)
-            {
-                MessageBox.Show("ERROR: Cannot find folder path for cloud service " + cloudSelected.ToString());
-                return;
-            }
-            // * //
-
-
-
-            // Find guid of desired cloud folder //
-            string guid = null;
-            RegistryKey OurKey = Registry.CurrentUser;
-            OurKey = OurKey.OpenSubKey(@"Software\Keenou\drives");
-            if (OurKey == null)
-            {
-                MessageBox.Show("Cannot find encrypted cloud folder!");
-                return;
-            }
-            foreach (string Keyname in OurKey.GetSubKeyNames())
-            {
-                RegistryKey key = OurKey.OpenSubKey(Keyname);
-                if (key.GetValue("encContainerLoc").ToString() == cloudPath)
-                {
-                    guid = Keyname.ToString();
-                }
-            }
-            if (guid == null)
-            {
-                MessageBox.Show("Cannot find encrypted cloud folder!");
-                return;
-            }
-            // * //
 
 
             // Determine where this cloud is mounted to //
             string targetDrive = (string)Registry.GetValue(Config.CURR_USR_REG_DRIVE_ROOT + guid, "encDrive", null);
             if (string.IsNullOrEmpty(targetDrive))
             {
-                MessageBox.Show("Target drive not found!  Is cloud mounted?");
-                return;
+                return new BooleanResult() { Success = false, Message = "ERROR: Target drive not found! Is cloud mounted?" };
             }
             // * //
+
 
 
             // Unmount encrypted drive 
             res = EncryptFS.UnmountEncryptedFS(targetDrive);
             if (res == null || !res.Success)
             {
-                MessageBox.Show(res.Message);
-                return;
+                return res;
             }
             // * //
 
+
+            return new BooleanResult() { Success = true };
         }
         // * //
 
